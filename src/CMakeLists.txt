@@ -16,6 +16,7 @@ endmacro()
 add_subdirectory(control)
 add_subdirectory(safety)
 add_subdirectory(sequencer)
+add_subdirectory(hal)
 
 # Main executable
 add_eeduro_sources(eeduro.cpp)
