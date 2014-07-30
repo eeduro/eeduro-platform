@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 2.8)
-project(EEDURO)
 
 # Load CMake modules
 include(CheckCXXCompilerFlag)
@@ -19,12 +18,10 @@ else()
 	message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler!")
 endif()
 
-# Header files
-include_directories(${PROJECT_SOURCE_DIR}/includes)
+# EEDURO Library
+add_subdirectory(eeduro)
 
-# Source files
-add_subdirectory(src)
-
-# Test cases
-enable_testing()
-add_subdirectory(test)
+# EEDURO Robots
+add_subdirectory(delta)
+add_subdirectory(omni)
+add_subdirectory(7axis)

@@ -1,4 +1,4 @@
-#include <eeduro/hal/Board.hpp>
+#include <eeduro/Board.hpp>
 
 using namespace eeduro;
 
@@ -18,7 +18,7 @@ Board::Board() :
 		speed_Hz(500000),
 		transmission_ok(false)
 {
-	for (int i = 0; i < nofAxis; i++) {
+	for (int i = 0; i < NOF_AXIS; i++) {
 		power_out[0] = false;
 		power_out[1] = false;
 		button[0] = false;
@@ -42,7 +42,7 @@ Board::Board() :
 
 	eeros::hal::HAL& hal = eeros::hal::HAL::instance();
 	hal.addPeripheralInput(&emergency);
-	for (int i = 0; i < nofAxis; i++) {
+	for (int i = 0; i < NOF_AXIS; i++) {
 		hal.addPeripheralInput(&fault[i]);
 		hal.addPeripheralInput(&position[i]);
 		hal.addPeripheralOutput(&enable[i]);
@@ -54,8 +54,7 @@ Board::~Board() { ::close(fd); }
 
 void Board::close() { ::close(fd); }
 
-bool Board::open(const char *dev)
-{
+bool Board::open(const char *dev) {
 	fd = ::open(dev, O_RDWR);
 
 	if (fd >= 0) {
@@ -98,7 +97,7 @@ bool Board::open(const char *dev)
 void Board::run() {
 
 	static uint64_t timestamp = 0;
-	timestamp += 1000000; // 1 ms
+	timestamp += 1000000; // 1 ms // TODO -> use system time
 
 	int r;
 
@@ -111,11 +110,11 @@ void Board::run() {
 	tr.speed_hz = speed_Hz;
 	tr.bits_per_word = bits_per_word;
 
-	bool invert[nofAxis] = { false, false, false, true };
-	bool axis_ok[nofAxis];
-	for (int i = 0; i < nofAxis; i++) axis_ok[i] = false;
+	bool invert[NOF_AXIS] = { false, false, false, true };
+	bool axis_ok[NOF_AXIS];
+	for (int i = 0; i < NOF_AXIS; i++) axis_ok[i] = false;
 
-	for (int i = 0; i < nofAxis; i++) {
+	for (int i = 0; i < NOF_AXIS; i++) {
 		read_data = 0;
 
 		_axis[i].voltage = in.getSignal().getValue()(i);
@@ -161,7 +160,7 @@ void Board::run() {
 		r = ioctl(fd, SPI_IOC_MESSAGE(1), &tr);
 
 		int a = ((read_data >> 28) & 0xf);
-		if (a >= 0 && a < nofAxis) {
+		if (a >= 0 && a < NOF_AXIS) {
 			axis_ok[a] = true;
 			axis[a].fault = ((read_data >> 25) & 0x1);
 
@@ -186,7 +185,7 @@ void Board::run() {
 
 	bool all_ok = true;
 
-	for (int i = 0; i < nofAxis; i++)
+	for (int i = 0; i < NOF_AXIS; i++)
 		if (!axis_ok[i]) all_ok = false;
 
 	transmission_ok = all_ok;

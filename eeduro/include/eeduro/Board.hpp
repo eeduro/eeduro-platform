@@ -1,16 +1,17 @@
 #ifndef __CH_NTB_EEDURO_BOARD_HPP_
 #define __CH_NTB_EEDURO_BOARD_HPP_
 
-#include <eeduro/hal/Latch.hpp>
-#include <eeduro/hal/Input.hpp>
-#include <eeduro/hal/Output.hpp>
-#include <eeduro/eeduro.hpp>
+#include <eeduro/Latch.hpp>
+#include <eeduro/Input.hpp>
+#include <eeduro/Output.hpp>
 #include <eeros/control/Block1i1o.hpp>
-#include <eeros/types.hpp>
+#include <eeros/math/Matrix.hpp>
+
+#define NOF_AXIS (4)
 
 namespace eeduro {
 	
-	class Board : public eeros::control::Block1i1o<AxisVector> {
+	class Board : public eeros::control::Block1i1o<eeros::math::Matrix<NOF_AXIS, 1, double>> {
 	
 	public:
 		Board();
@@ -41,7 +42,7 @@ namespace eeduro {
 			bool fault;
 			double position;
 			bool current_limit[2];
-		} axis[nofAxis];
+		} axis[NOF_AXIS];
 	
 	private:
 		int fd;
@@ -62,33 +63,33 @@ namespace eeduro {
 			int16_t position;
 			uint16_t duty;
 			double voltage;
-		} _axis[nofAxis];
+		} _axis[NOF_AXIS];
 
 		Latch emergency_latch = { button[0] };
-		Input<bool> emergency = { "emergency", emergency_latch.state };
+		eeduro::hal::Input<bool> emergency = { "emergency", emergency_latch.state };
 
-		Input<bool> fault[nofAxis] = {
+		eeduro::hal::Input<bool> fault[NOF_AXIS] = {
 			{ "fault0", axis[0].fault },
 			{ "fault1", axis[1].fault },
 			{ "fault2", axis[2].fault },
 			{ "fault3", axis[3].fault }
 		};
 
-		Input<double> position[nofAxis] = {
+		eeduro::hal::Input<double> position[NOF_AXIS] = {
 			{ "q0", axis[0].position },
 			{ "q1", axis[1].position },
 			{ "q2", axis[2].position },
 			{ "q3", axis[3].position }
 		};
 
-		Output<bool> enable[nofAxis] = {
+		eeduro::hal::Output<bool> enable[NOF_AXIS] = {
 			{ "enable0", axis[0].enable },
 			{ "enable1", axis[1].enable },
 			{ "enable2", axis[2].enable },
 			{ "enable3", axis[3].enable }
 		};
 
-		Output<double> voltage[nofAxis] = {
+		eeduro::hal::Output<double> voltage[NOF_AXIS] = {
 			{ "voltage0", _axis[0].voltage },
 			{ "voltage1", _axis[1].voltage },
 			{ "voltage2", _axis[2].voltage },

@@ -1,14 +1,13 @@
-#include <eeduro/eeduro.hpp>
-#include <eeduro/control/ControlSystem.hpp>
+#include "control/ControlSystem.hpp"
 
 #include <eeros/logger/Logger.hpp>
 #include <eeros/logger/StreamLogWriter.hpp>
-#include <eeros/core/EEROSException.hpp>
 
 #include <iostream>
 #include <unistd.h>
 
 using namespace eeduro;
+using namespace eeduro::delta;
 using namespace eeros;
 using namespace eeros::logger;
 
@@ -18,17 +17,19 @@ int main(int argc, char* argv[]) {
 	w.show();
 	
 	// create control system
-	ControlSystem cs(dt);
+	ControlSystem cs;
 	
 	// initialize hardware
-	if(!cs.board.open("/dev/spidev1.0"))
-		throw EEROSException("failed to open SPI device");
-	
+	cs.initBoard();
+		
 	// start control system
 	cs.start();
 	
-	// wait for a while
-	sleep(5);
+	// initialize axis
+//	cs.enableAxis();
+	
+	
+	sleep(1);
 	
 	// stop control system
 	cs.stop();
