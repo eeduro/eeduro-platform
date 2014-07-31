@@ -21,9 +21,9 @@ const double Kinematic::alpha1(0);
 const double Kinematic::alpha2(2*M_PI/3);
 const double Kinematic::alpha3(-2*M_PI/3);
 
-const Matrix<3,3> Kinematic::rotz1 = Matrix<3,3>::createRotZ(Kinematic::alpha1);
-const Matrix<3,3> Kinematic::rotz2 = Matrix<3,3>::createRotZ(Kinematic::alpha2);
-const Matrix<3,3> Kinematic::rotz3 = Matrix<3,3>::createRotZ(Kinematic::alpha3);
+const Matrix<3, 3> Kinematic::rotz1 = Matrix<3, 3>::createRotZ(Kinematic::alpha1);
+const Matrix<3, 3> Kinematic::rotz2 = Matrix<3, 3>::createRotZ(Kinematic::alpha2);
+const Matrix<3, 3> Kinematic::rotz3 = Matrix<3, 3>::createRotZ(Kinematic::alpha3);
 
 Kinematic::Kinematic(const Vector3 offsetv) {
 	offset = offsetv;
@@ -45,44 +45,44 @@ Kinematic::~Kinematic() { }
 
 bool Kinematic::forward(const Vector3& q, Vector3& tcp) {
 	Vector3 temp1;
-	temp1(1) = r + length_A * cos(q(1));
-	temp1(2) = 0;
-	temp1(3) = length_A * sin(q(1));
+	temp1(0) = r + length_A * cos(q(0));
+	temp1(1) = 0;
+	temp1(2) = length_A * sin(q(0));
 	
 	Vector3 temp2;
-	temp2(1) = r + length_A * cos(q(2));
-	temp2(2) = 0;
-	temp2(3) = length_A * sin(q(2));
+	temp2(0) = r + length_A * cos(q(1));
+	temp2(1) = 0;
+	temp2(2) = length_A * sin(q(1));
 	
 	Vector3 temp3;
-	temp3(1) = r + length_A * cos(q(3));
-	temp3(2) = 0;
-	temp3(3) = length_A * sin(q(3));
+	temp3(0) = r + length_A * cos(q(2));
+	temp3(1) = 0;
+	temp3(2) = length_A * sin(q(2));
 	
-	Vector3 pc1 = rotz1*temp1;
-	Vector3 pc2 = rotz2*temp2;
-	Vector3 pc3 = rotz3*temp3;
+	Vector3 pc1 = rotz1 * temp1;
+	Vector3 pc2 = rotz2 * temp2;
+	Vector3 pc3 = rotz3 * temp3;
 	
 	double rspher = length_B;
 	
-	double w1 = pc1.transpose()*pc1;
-	double w2 = pc2.transpose()*pc2;
-	double w3 = pc3.transpose()*pc3;
+	double w1 = pc1.transpose() * pc1;
+	double w2 = pc2.transpose() * pc2;
+	double w3 = pc3.transpose() * pc3;
 	
-	double x1 = pc1(1);
-	double y1 = pc1(2);
-	double z1 = pc1(3);
+	double x1 = pc1(0);
+	double y1 = pc1(1);
+	double z1 = pc1(2);
 	
 	Vector3 vektordiff = pc2-pc1;
-	double A = vektordiff(1);
-	double B = vektordiff(2);
-	double C = -vektordiff(3);
+	double A = vektordiff(0);
+	double B = vektordiff(1);
+	double C = -vektordiff(2);
 	double G = (w2-w1)/2;
 	
 	vektordiff = pc3-pc1;
-	double D = vektordiff(1);
-	double E = vektordiff(2);
-	double F = -vektordiff(3);
+	double D = vektordiff(0);
+	double E = vektordiff(1);
+	double F = -vektordiff(2);
 	double H = (w3-w1)/2;
 	
 	double dnm = A*E-B*D;
@@ -109,9 +109,9 @@ bool Kinematic::forward(const Vector3& q, Vector3& tcp) {
 	else {
 		// take only the solution with the lower value for Z
 		double poseZ = (-b - sqrt(d))/(2*a);
-		tcp(1) = a1*poseZ + b1+offset(1);
-		tcp(2) = a2*poseZ + b2+offset(2);
-		tcp(3) = poseZ-0.004-offset(3); 											// TCP is lower surface: -0.004
+		tcp(0) = a1*poseZ + b1+offset(0);
+		tcp(1) = a2*poseZ + b2+offset(1);
+		tcp(2) = poseZ-0.004-offset(2); 											// TCP is lower surface: -0.004
 		return true;
 	}
 }
@@ -119,9 +119,9 @@ bool Kinematic::forward(const Vector3& q, Vector3& tcp) {
 bool Kinematic::inverse(const Vector3& tcp, Vector3& q) {
 	Vector3 tempTCP;
 
-	tempTCP(1) = tcp(1)- offset(1);
-	tempTCP(2) = tcp(2)- offset(2);
-	tempTCP(3) = tcp(3)+0.004+offset(3);
+	tempTCP(0) = tcp(1)- offset(0);
+	tempTCP(1) = tcp(2)- offset(1);
+	tempTCP(2) = tcp(3)+0.004+offset(2);
 
 	Vector3 tcp_1 = rotz1*tempTCP;
 	Vector3 tcp_2 = rotz3*tempTCP;                  							   // invers rotz_2
@@ -131,9 +131,9 @@ bool Kinematic::inverse(const Vector3& tcp, Vector3& q) {
 
 	// 1. arm:
 
-	double x0_1 = tcp_1(1);
-	double y0_1 = tcp_1(2);
-	double z0_1 = tcp_1(3);
+	double x0_1 = tcp_1(0);
+	double y0_1 = tcp_1(1);
+	double z0_1 = tcp_1(2);
 
 	double a_1 = (x0_1*x0_1 + y0_1*y0_1 + z0_1*z0_1 + LA_sqr - length_B*length_B - x1*x1)/(2*z0_1 );
 	double b_1 = (x1-x0_1)/z0_1;
@@ -153,12 +153,12 @@ bool Kinematic::inverse(const Vector3& tcp, Vector3& q) {
 		double zj_1 = a_1 + b_1*xj_1;
 		
 		// 1. joint coordinate
-		q(1) = atan2(zj_1,(xj_1 - x1));
+		q(0) = atan2(zj_1,(xj_1 - x1));
 		
 		// 2. arm:
-		double x0_2 = tcp_2(1);
-		double y0_2 = tcp_2(2);
-		double z0_2 = tcp_2(3);
+		double x0_2 = tcp_2(0);
+		double y0_2 = tcp_2(1);
+		double z0_2 = tcp_2(2);
 		
 		double a_2 = (x0_2*x0_2 + y0_2*y0_2 + z0_2*z0_2 + LA_sqr - length_B*length_B - x1*x1)/(2*z0_2 );
 		double b_2 = (x1-x0_2)/z0_2;
@@ -178,12 +178,12 @@ bool Kinematic::inverse(const Vector3& tcp, Vector3& q) {
 			double zj_2 = a_2 + b_2*xj_2;
 			
 			// 2. joint coordinate
-			q(2) = atan2(zj_2,(xj_2 - x1));
+			q(1) = atan2(zj_2,(xj_2 - x1));
 			
 			// 3. arm:
-			double x0_3 = tcp_3(1);
-			double y0_3 = tcp_3(2);
-			double z0_3 = tcp_3(3);
+			double x0_3 = tcp_3(0);
+			double y0_3 = tcp_3(1);
+			double z0_3 = tcp_3(2);
 			
 			double a_3 = (x0_3*x0_3 + y0_3*y0_3 + z0_3*z0_3 + LA_sqr - length_B*length_B - x1*x1)/(2*z0_3 );
 			double b_3 = (x1-x0_3)/z0_3;
@@ -203,7 +203,7 @@ bool Kinematic::inverse(const Vector3& tcp, Vector3& q) {
 				double zj_3 = a_3 + b_3*xj_3;
 				
 				// 3. joint coordinate
-				q(3) = atan2(zj_3,(xj_3 - x1));
+				q(2) = atan2(zj_3,(xj_3 - x1));
 				
 				return true;
 			}

@@ -10,8 +10,8 @@ namespace eeduro {
 		constexpr unsigned int nofAxis = 4;
 		
 		// Electrical and mechanical parameters
-		constexpr double i1524 = 387283.0/5103.0;
-		constexpr double i0816 = 387283.0/5103.0; // TODO
+		constexpr double i1524 = 387283.0/5103.0;	// gear ratio for the 3 main axis
+		constexpr double i0816 = 319333.0/2673.0;	// gear ratio for the 4th axis
 		
 		// Controller parameters
 		constexpr double dt = 0.001; // [s]

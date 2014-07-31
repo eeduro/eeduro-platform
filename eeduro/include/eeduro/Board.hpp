@@ -29,7 +29,8 @@ namespace eeduro {
 
 		virtual void limit(double voltage);
 		virtual void resetEmergency();
-
+		virtual void resetPositions();
+		
 		bool transmission_ok;
 		bool power_out[2];
 		bool button[2];
@@ -50,8 +51,8 @@ namespace eeduro {
 		double voltage_limit = 12;
 		const double max_voltage = 12;
 		const int encoder_ticks = 512 * 4;
-		const double gear = 387283.0 / 5103.0;
-		const double k = 2 * 3.1415926535897932384626433832795 / ( static_cast<double>(encoder_ticks) * gear );
+//		const double gear = 387283.0 / 5103.0;
+		const double k = 2 * 3.1415926535897932384626433832795 / ( static_cast<double>(encoder_ticks) );
 
 		const uint8_t  mode;
 		const uint8_t  lsb_first;
@@ -64,6 +65,8 @@ namespace eeduro {
 			uint16_t duty;
 			double voltage;
 		} _axis[NOF_AXIS];
+		
+		bool clearPosition[NOF_AXIS];
 
 		Latch emergency_latch = { button[0] };
 		eeduro::hal::Input<bool> emergency = { "emergency", emergency_latch.state };

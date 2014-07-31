@@ -12,6 +12,8 @@ using namespace eeros;
 using namespace eeros::logger;
 
 int main(int argc, char* argv[]) {
+	std::cout << "Application eeduro-delta started..." << std::endl;
+	
 	StreamLogWriter w(std::cout);
 	Logger<LogWriter>::setDefaultWriter(&w);
 	w.show();
@@ -28,8 +30,13 @@ int main(int argc, char* argv[]) {
 	// initialize axis
 //	cs.enableAxis();
 	
+	cs.resetEncoders();
 	
-	sleep(1);
+	for(int i = 0; i < 30; i++) {
+//		std::cout << "Axis: [q0, q1, q2, q3] = " << cs.getCurrentAxisPos() << std::endl;
+		std::cout << "TCP: [x, y, z, phi] = " << cs.getCurrentPos() << std::endl;
+		sleep(1);
+	}
 	
 	// stop control system
 	cs.stop();

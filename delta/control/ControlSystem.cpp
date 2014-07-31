@@ -14,17 +14,18 @@ ControlSystem::ControlSystem() :
 	speedController(kd),
 	inertia(1), // TODO
 //	jacobi, // TODO
-	invGear(1.0/i),
-	gear(i),
 //	motorModel, // TODO
-//	directKin, // TODO
+	directKin(kinematic),
 	timedomain("Main time domain", dt, true) {
 
 	i << i1524, i1524, i1524, i0816;
+	torqueGear.setGain(1.0 / i);
+	angleGear.setGain(1.0 / i);
+	
 	posSum.negateInput(1);
 	speedSum.negateInput(1);
 	
-	board.getIn().connect(motorModel.getOut());
+//	board.getIn().connect(motorModel.getOut());
 	posSum.getIn(0).connect(posSetPoint.getOut());
 	posSum.getIn(1).connect(directKin.getOut());
 	posController.getIn().connect(posSum.getOut());
@@ -38,16 +39,16 @@ ControlSystem::ControlSystem() :
 	forceLimitation.getIn().connect(inertia.getOut());
 	jacobi.getIn().connect(forceLimitation.getOut());
 	torqueLimitation.getIn().connect(jacobi.getOut());
-	invGear.getIn().connect(torqueLimitation.getOut());
-	gear.getIn().connect(board.getOut());
-	motorModel.getTorqueIn().connect(invGear.getOut());
+	torqueGear.getIn().connect(torqueLimitation.getOut());
+	angleGear.getIn().connect(board.getOut());
+	motorModel.getTorqueIn().connect(torqueGear.getOut());
 	motorModel.getSpeedIn().connect(angleDiff.getOut());
 	angleDiff.getIn().connect(board.getOut());
-	directKin.getIn().connect(gear.getOut());
+	directKin.getIn().connect(angleGear.getOut());
 	
 	timedomain.addBlock(&board);
 	timedomain.addBlock(&angleDiff);
-	timedomain.addBlock(&gear);
+	timedomain.addBlock(&angleGear);
 	timedomain.addBlock(&directKin);
 	timedomain.addBlock(&posDiff);
 	timedomain.addBlock(&posSetPoint);
@@ -61,7 +62,7 @@ ControlSystem::ControlSystem() :
 	timedomain.addBlock(&forceLimitation);
 	timedomain.addBlock(&jacobi);
 	timedomain.addBlock(&torqueLimitation);
-	timedomain.addBlock(&invGear);
+	timedomain.addBlock(&torqueGear);
 	timedomain.addBlock(&motorModel);
 }
 
@@ -85,9 +86,7 @@ void ControlSystem::disableAxis() {
 }
 
 void ControlSystem::resetEncoders() {
-	board.setReset(1, true);
-	usleep(2000);
-	board.setReset(1, false);
+	board.resetPositions();
 }
 
 void ControlSystem::goToPos(double x, double y, double z, double phi) {
@@ -99,4 +98,12 @@ void ControlSystem::goToPos(double x, double y, double z, double phi) {
 void ControlSystem::initBoard() {
 	if(!board.open("/dev/spidev1.0"))
 		throw EEROSException("failed to open SPI device");
+}
+
+AxisVector ControlSystem::getCurrentPos() {
+	return directKin.getOut().getSignal().getValue();
+}
+
+AxisVector ControlSystem::getCurrentAxisPos() {
+	return angleGear.getOut().getSignal().getValue();
 }

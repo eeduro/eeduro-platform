@@ -34,11 +34,13 @@ namespace eeduro {
 			void initBoard();
 			bool initAxis();
 			void switchToPosControl();
+			AxisVector getCurrentPos();
+			AxisVector getCurrentAxisPos();
 			void goToPos(double x, double y, double z, double phi);
 			
 		protected:
-			AxisSquareMatrix kM;
 			AxisVector i;
+			Kinematic kinematic;
 			
 			// Blocks
 			eeduro::Board										board;
@@ -58,8 +60,8 @@ namespace eeduro {
 			eeduro::delta::Jacobi								jacobi;
 			
 			eeros::control::Saturation<AxisVector>				torqueLimitation;
-			eeros::control::Gain<AxisVector, AxisVector, true>	invGear;
-			eeros::control::Gain<AxisVector, AxisVector, true>	gear;
+			eeros::control::Gain<AxisVector, AxisVector, true>	torqueGear;
+			eeros::control::Gain<AxisVector, AxisVector, true>	angleGear;
 			eeduro::delta::MotorModel<AxisVector>				motorModel;
 			eeros::control::D<AxisVector>						angleDiff;
 			eeduro::delta::DirectKinematic						directKin;

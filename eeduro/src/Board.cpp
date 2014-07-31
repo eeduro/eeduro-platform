@@ -10,6 +10,8 @@ using namespace eeduro;
 
 #include <eeros/hal/HAL.hpp>
 
+#include <iostream>
+
 Board::Board() :
 		fd(-1),
 		mode(SPI_MODE_2),
@@ -36,6 +38,8 @@ Board::Board() :
 		_axis[i].position = 0;
 		_axis[i].duty = 0;
 		_axis[i].voltage = 0;
+		
+		clearPosition[i] = false;
 	}
 
 	resetEmergency();
@@ -114,6 +118,8 @@ void Board::run() {
 	bool axis_ok[NOF_AXIS];
 	for (int i = 0; i < NOF_AXIS; i++) axis_ok[i] = false;
 
+	eeros::math::Matrix<NOF_AXIS, 1> o;
+	
 	for (int i = 0; i < NOF_AXIS; i++) {
 		read_data = 0;
 
@@ -174,14 +180,23 @@ void Board::run() {
 			int16_t old = _axis[a].position;
 			_axis[a].position = (read_data & 0xffff);
 			int16_t delta = (_axis[a].position - old);
-			axis[a].position += k * delta;
-
-			eeros::math::Matrix<4,1> o = out.getSignal().getValue();
+			if(clearPosition[a]) {
+				axis[a].position = 0;
+				clearPosition[a] = false; // set back
+				std::cout << "Pos cleard for axis " << a << std::endl;
+			}
+			else {
+				axis[a].position += k * delta;
+// 				if(a == 0) {
+// 					std::cout << "q" << a << ": delta = " << delta << ", pos = " << axis[a].position << std::endl;
+// 				}
+			}
 			o(a) = axis[a].position;
-			out.getSignal().setValue(o);
-			out.getSignal().setTimestamp(timestamp);
 		}
 	}
+//	std::cout << "out = " << o << std::endl;
+	out.getSignal().setValue(o);
+	out.getSignal().setTimestamp(timestamp);
 
 	bool all_ok = true;
 
@@ -216,4 +231,10 @@ void Board::limit(double voltage) {
 
 void Board::resetEmergency() {
 	emergency_latch.state = false;
+}
+
+void Board::resetPositions() {
+	for(int i = 0; i < NOF_AXIS; i++) {
+		clearPosition[i] = true;
+	}
 }
