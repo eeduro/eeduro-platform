@@ -8,24 +8,29 @@ using namespace eeros;
 using namespace eeros::control;
 
 ControlSystem::ControlSystem() :
-	posSetPoint(0),
+// 	i(i1524, i1524, i1524, i0816),
+// 	kM(kM1524, kM1524, kM1524, kM0816),
+// 	RA(RA1524, RA1524, RA1524, RA0816),
+	
+	initialized(false),
 	posController(kp),
-	speedSetPoint(0),
 	speedController(kd),
-	inertia(1), // TODO
-//	jacobi, // TODO
-//	motorModel, // TODO
+	inertia(jred),
+	jacobi(jacobian),
+	torqueGear(1.0 / i),
+	angleGear(1.0 / i),
+	motorModel(kM, RA),
+	voltageSwitch(1),
 	directKin(kinematic),
 	timedomain("Main time domain", dt, true) {
-
-	i << i1524, i1524, i1524, i0816;
-	torqueGear.setGain(1.0 / i);
-	angleGear.setGain(1.0 / i);
+	
+//	torqueGear.setGain(1.0 / i);
+//	angleGear.setGain(1.0 / i);
 	
 	posSum.negateInput(1);
 	speedSum.negateInput(1);
 	
-//	board.getIn().connect(motorModel.getOut());
+	board.getIn().connect(voltageSwitch.getOut());
 	posSum.getIn(0).connect(posSetPoint.getOut());
 	posSum.getIn(1).connect(directKin.getOut());
 	posController.getIn().connect(posSum.getOut());
@@ -37,12 +42,16 @@ ControlSystem::ControlSystem() :
 	speedController.getIn().connect(speedLimitation.getOut());
 	inertia.getIn().connect(speedController.getOut());
 	forceLimitation.getIn().connect(inertia.getOut());
-	jacobi.getIn().connect(forceLimitation.getOut());
+	jacobi.getForceInput().connect(forceLimitation.getOut());
+	jacobi.getJointPosInput().connect(angleGear.getOut());
+	jacobi.getTcpPosInput().connect(directKin.getOut());
 	torqueLimitation.getIn().connect(jacobi.getOut());
 	torqueGear.getIn().connect(torqueLimitation.getOut());
 	angleGear.getIn().connect(board.getOut());
 	motorModel.getTorqueIn().connect(torqueGear.getOut());
 	motorModel.getSpeedIn().connect(angleDiff.getOut());
+	voltageSwitch.getIn(0).connect(motorModel.getOut());
+	voltageSwitch.getIn(1).connect(voltageSetPoint.getOut());
 	angleDiff.getIn().connect(board.getOut());
 	directKin.getIn().connect(angleGear.getOut());
 	
@@ -64,6 +73,8 @@ ControlSystem::ControlSystem() :
 	timedomain.addBlock(&torqueLimitation);
 	timedomain.addBlock(&torqueGear);
 	timedomain.addBlock(&motorModel);
+	timedomain.addBlock(&voltageSetPoint);
+	timedomain.addBlock(&voltageSwitch);
 }
 
 void ControlSystem::start() {
@@ -85,14 +96,28 @@ void ControlSystem::disableAxis() {
 	board.setReset(true);
 }
 
-void ControlSystem::resetEncoders() {
+void ControlSystem::initAxis() {
+	if(initialized) return;
+	
+	voltageSetPoint.setValue({2, 2, 2, 2});
+	voltageSwitch.switchToInput(1);
+	
+	do {
+//		std::this_thread::sleep_for(std::chrono::microseconds(500)); // TODO doesn't compiles with linaro toolchain...
+		sleep(1);
+	} while(!allAxisStopped());
+	
+	sleep(2);
 	board.resetPositions();
+	voltageSetPoint.setValue({0, 0, 0, 0});
+	voltageSwitch.switchToInput(0);
+	initialized = true;
 }
 
 void ControlSystem::goToPos(double x, double y, double z, double phi) {
-	AxisVector p;
-	p << x, y, z, phi;
-	posSetPoint.setValue(p);
+// 	AxisVector p;
+// 	p << x, y, z, phi;
+// 	posSetPoint.setValue(p);
 }
 
 void ControlSystem::initBoard() {
@@ -106,4 +131,11 @@ AxisVector ControlSystem::getCurrentPos() {
 
 AxisVector ControlSystem::getCurrentAxisPos() {
 	return angleGear.getOut().getSignal().getValue();
+}
+
+bool ControlSystem::allAxisStopped(double maxSpeed) {
+	for(int i = 0; i < nofAxis; i++) {
+		if(angleDiff.getOut().getSignal().getValue()[i] > maxSpeed) return false;
+	}
+	return true;
 }

@@ -1,20 +1,33 @@
 #ifndef CH_NTB_EEDURO_DELTA_JACOBI_HPP
 #define CH_NTB_EEDURO_DELTA_JACOBI_HPP
 
-#include <eeros/control/Block1i1o.hpp>
+#include <eeros/control/Block.hpp>
+#include <eeros/control/Input.hpp>
+#include <eeros/control/Output.hpp>
 #include "types.hpp"
+#include "Jacobian.hpp"
 
 namespace eeduro {
 	namespace delta {
-		class Jacobi : public eeros::control::Block1i1o<AxisVector> {
+		class Jacobi : public eeros::control::Block {
 		public:
-			Jacobi();
-			virtual ~Jacobi();
+			Jacobi(Jacobian& j);
 			
 			virtual void run();
 			
-		private:
+			virtual eeros::control::Input<AxisVector>& getForceInput();
+			virtual eeros::control::Input<AxisVector>& getTcpPosInput();
+			virtual eeros::control::Input<AxisVector>& getJointPosInput();
+			virtual eeros::control::Output<AxisVector>& getOut();
 			
+		protected:
+			eeros::control::Input<AxisVector> forceIn;
+			eeros::control::Input<AxisVector> tcpPosIn;
+			eeros::control::Input<AxisVector> jointPosIn;
+			eeros::control::Output<AxisVector> torqueOut;
+			
+		private:
+			Jacobian& jacobi;
 		};
 	}
 }

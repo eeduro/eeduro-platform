@@ -27,16 +27,17 @@ int main(int argc, char* argv[]) {
 	// start control system
 	cs.start();
 	
+	
+	
 	// initialize axis
-//	cs.enableAxis();
+	std::cout << "  Initializing axis... ";
+	cs.enableAxis();
+	cs.initAxis();
+	cs.disableAxis();
+		
+//	sleep(5);
 	
-	cs.resetEncoders();
-	
-	for(int i = 0; i < 30; i++) {
-//		std::cout << "Axis: [q0, q1, q2, q3] = " << cs.getCurrentAxisPos() << std::endl;
-		std::cout << "TCP: [x, y, z, phi] = " << cs.getCurrentPos() << std::endl;
-		sleep(1);
-	}
+	cs.disableAxis();
 	
 	// stop control system
 	cs.stop();

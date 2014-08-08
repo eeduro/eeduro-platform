@@ -1,1 +1,1 @@
-add_delta_sources(Kinematic.cpp Jacobian.cpp DirectKinematic.cpp Jacobi.cpp ControlSystem.cpp)
+add_delta_sources(Kinematic.cpp Jacobian.cpp DirectKinematic.cpp Jacobi.cpp ControlSystem.cpp MotorModel.cpp)

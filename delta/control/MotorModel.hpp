@@ -6,32 +6,22 @@
 
 namespace eeduro {
 	namespace delta {
-		template <typename T = double>
 		class MotorModel : public eeros::control::Block {
 		public:
-			MotorModel() { }
+			MotorModel(const AxisVector kM, const AxisVector RA);
 			
-			virtual eeros::control::Input<T>& getTorqueIn() {
-				return torque;
-			}
+			virtual eeros::control::Input<AxisVector>& getTorqueIn();
+			virtual eeros::control::Input<AxisVector>& getSpeedIn();
+			virtual eeros::control::Output<AxisVector>& getOut();
 			
-			virtual eeros::control::Input<T>& getSpeedIn() {
-				return speed;
-			}
-			
-			virtual eeros::control::Output<T>& getOut() {
-				return voltage;
-			}
-			
-			virtual void run() {
-				// TODO
-			}
+			virtual void run();
 			
 		protected:
-			eeros::control::Input<T> torque;
-			eeros::control::Input<T> speed;
-			eeros::control::Output<T> voltage;
+			eeros::control::Input<AxisVector> torque;
+			eeros::control::Input<AxisVector> speed;
+			eeros::control::Output<AxisVector> voltage;
 			
+			AxisVector kM, RA;
 		};
 	}
 }

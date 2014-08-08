@@ -9,6 +9,7 @@ using namespace eeduro;
 #include <linux/spi/spidev.h>
 
 #include <eeros/hal/HAL.hpp>
+#include <eeros/core/System.hpp>
 
 #include <iostream>
 
@@ -100,8 +101,8 @@ bool Board::open(const char *dev) {
 
 void Board::run() {
 
-	static uint64_t timestamp = 0;
-	timestamp += 1000000; // 1 ms // TODO -> use system time
+//	static uint64_t timestamp = 0;
+//	timestamp += 1000000; // 1 ms // TODO -> use system time
 
 	int r;
 
@@ -183,7 +184,7 @@ void Board::run() {
 			if(clearPosition[a]) {
 				axis[a].position = 0;
 				clearPosition[a] = false; // set back
-				std::cout << "Pos cleard for axis " << a << std::endl;
+// 				std::cout << "Pos cleard for axis " << a << std::endl;
 			}
 			else {
 				axis[a].position += k * delta;
@@ -196,7 +197,7 @@ void Board::run() {
 	}
 //	std::cout << "out = " << o << std::endl;
 	out.getSignal().setValue(o);
-	out.getSignal().setTimestamp(timestamp);
+	out.getSignal().setTimestamp(eeros::System::getTimeNs());
 
 	bool all_ok = true;
 

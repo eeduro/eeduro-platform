@@ -10,6 +10,8 @@
 #include <eeros/math/Matrix.hpp>
 #include <eeros/control/Switch.hpp>
 #include <eeros/control/Saturation.hpp>
+#include "Kinematic.hpp"
+#include "Jacobian.hpp"
 #include "DirectKinematic.hpp"
 #include "Jacobi.hpp"
 #include "MotorModel.hpp"
@@ -28,21 +30,23 @@ namespace eeduro {
 			void stop();
 			
 			// Methods for the sequencer
-			void resetEncoders();
 			void enableAxis();
 			void disableAxis();
 			void initBoard();
-			bool initAxis();
-			void switchToPosControl();
+			void initAxis();
 			AxisVector getCurrentPos();
 			AxisVector getCurrentAxisPos();
 			void goToPos(double x, double y, double z, double phi);
 			
 		protected:
 			AxisVector i;
+			AxisVector kM;
+			AxisVector RA;
 			Kinematic kinematic;
+			Jacobian jacobian;
+			bool initialized;
 			
-			// Blocks
+			// Blocks			
 			eeduro::Board										board;
 			
 			eeros::control::Constant<AxisVector>				posSetPoint;
@@ -55,18 +59,23 @@ namespace eeduro {
 			eeros::control::Saturation<AxisVector>				speedLimitation;
 			eeros::control::Gain<AxisVector>					speedController;
 			
-			eeros::control::Gain<AxisVector, AxisSquareMatrix>	inertia;
+			eeros::control::Gain<AxisVector>					inertia;
 			eeros::control::Saturation<AxisVector>				forceLimitation;
 			eeduro::delta::Jacobi								jacobi;
 			
 			eeros::control::Saturation<AxisVector>				torqueLimitation;
 			eeros::control::Gain<AxisVector, AxisVector, true>	torqueGear;
 			eeros::control::Gain<AxisVector, AxisVector, true>	angleGear;
-			eeduro::delta::MotorModel<AxisVector>				motorModel;
+			eeduro::delta::MotorModel							motorModel;
+			eeros::control::Switch<2, AxisVector>				voltageSwitch;
+			eeros::control::Constant<AxisVector>				voltageSetPoint;
 			eeros::control::D<AxisVector>						angleDiff;
 			eeduro::delta::DirectKinematic						directKin;
 			
 			eeros::control::TimeDomain timedomain;
+			
+		private:
+			bool allAxisStopped(double maxSpeed = 0.001);
 		};
 	}
 }
