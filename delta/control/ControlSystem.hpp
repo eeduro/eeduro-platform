@@ -38,7 +38,7 @@ namespace eeduro {
 			AxisVector getCurrentAxisPos();
 			void goToPos(double x, double y, double z, double phi);
 			
-		protected:
+//		protected:
 			AxisVector i;
 			AxisVector kM;
 			AxisVector RA;
@@ -69,8 +69,9 @@ namespace eeduro {
 			eeduro::delta::MotorModel							motorModel;
 			eeros::control::Switch<2, AxisVector>				voltageSwitch;
 			eeros::control::Constant<AxisVector>				voltageSetPoint;
-			eeros::control::D<AxisVector>						angleDiff;
 			eeduro::delta::DirectKinematic						directKin;
+			
+			eeros::control::Constant<AxisVector>				temp;
 			
 			eeros::control::TimeDomain timedomain;
 			

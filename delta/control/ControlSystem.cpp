@@ -8,24 +8,22 @@ using namespace eeros;
 using namespace eeros::control;
 
 ControlSystem::ControlSystem() :
-// 	i(i1524, i1524, i1524, i0816),
-// 	kM(kM1524, kM1524, kM1524, kM0816),
-// 	RA(RA1524, RA1524, RA1524, RA0816),
+	i(i1524, i1524, i1524, i0816),
+	kM(kM1524, kM1524, kM1524, kM0816),
+	RA(RA1524, RA1524, RA1524, RA0816),
 	
 	initialized(false),
 	posController(kp),
 	speedController(kd),
 	inertia(jred),
 	jacobi(jacobian),
-	torqueGear(1.0 / i),
-	angleGear(1.0 / i),
 	motorModel(kM, RA),
 	voltageSwitch(1),
 	directKin(kinematic),
 	timedomain("Main time domain", dt, true) {
 	
-//	torqueGear.setGain(1.0 / i);
-//	angleGear.setGain(1.0 / i);
+	torqueGear.setGain(1.0 / i);
+	angleGear.setGain(1.0 / i);
 	
 	posSum.negateInput(1);
 	speedSum.negateInput(1);
@@ -46,17 +44,16 @@ ControlSystem::ControlSystem() :
 	jacobi.getJointPosInput().connect(angleGear.getOut());
 	jacobi.getTcpPosInput().connect(directKin.getOut());
 	torqueLimitation.getIn().connect(jacobi.getOut());
-	torqueGear.getIn().connect(torqueLimitation.getOut());
-	angleGear.getIn().connect(board.getOut());
+//	torqueGear.getIn().connect(torqueLimitation.getOut());
+	torqueGear.getIn().connect(temp.getOut());
+//	angleGear.getIn().connect(board.getOut());
 	motorModel.getTorqueIn().connect(torqueGear.getOut());
-	motorModel.getSpeedIn().connect(angleDiff.getOut());
+	motorModel.getSpeedIn().connect(board.getSpeedOut());
 	voltageSwitch.getIn(0).connect(motorModel.getOut());
 	voltageSwitch.getIn(1).connect(voltageSetPoint.getOut());
-	angleDiff.getIn().connect(board.getOut());
 	directKin.getIn().connect(angleGear.getOut());
 	
 	timedomain.addBlock(&board);
-	timedomain.addBlock(&angleDiff);
 	timedomain.addBlock(&angleGear);
 	timedomain.addBlock(&directKin);
 	timedomain.addBlock(&posDiff);
@@ -75,6 +72,7 @@ ControlSystem::ControlSystem() :
 	timedomain.addBlock(&motorModel);
 	timedomain.addBlock(&voltageSetPoint);
 	timedomain.addBlock(&voltageSwitch);
+	timedomain.addBlock(&temp);
 }
 
 void ControlSystem::start() {
@@ -99,7 +97,7 @@ void ControlSystem::disableAxis() {
 void ControlSystem::initAxis() {
 	if(initialized) return;
 	
-	voltageSetPoint.setValue({2, 2, 2, 2});
+	voltageSetPoint.setValue({2.5, 2.5, 2.5, 1.5});
 	voltageSwitch.switchToInput(1);
 	
 	do {
@@ -107,7 +105,6 @@ void ControlSystem::initAxis() {
 		sleep(1);
 	} while(!allAxisStopped());
 	
-	sleep(2);
 	board.resetPositions();
 	voltageSetPoint.setValue({0, 0, 0, 0});
 	voltageSwitch.switchToInput(0);
@@ -135,7 +132,7 @@ AxisVector ControlSystem::getCurrentAxisPos() {
 
 bool ControlSystem::allAxisStopped(double maxSpeed) {
 	for(int i = 0; i < nofAxis; i++) {
-		if(angleDiff.getOut().getSignal().getValue()[i] > maxSpeed) return false;
+		if(board.getSpeedOut().getSignal().getValue()[i] > maxSpeed) return false;
 	}
 	return true;
 }

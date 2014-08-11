@@ -27,15 +27,19 @@ int main(int argc, char* argv[]) {
 	// start control system
 	cs.start();
 	
-	
+	cs.temp.setValue({0.1, 0, 0, 0});
 	
 	// initialize axis
-	std::cout << "  Initializing axis... ";
+	std::cout << "  Initializing axis... " << std::endl;
 	cs.enableAxis();
 	cs.initAxis();
-	cs.disableAxis();
-		
-//	sleep(5);
+//	cs.disableAxis();
+	std::cout << "  -> done" << std::endl;
+	
+	for(int i = 0; i < 10; i++) {
+		std::cout << cs.torqueGear.getOut().getSignal().getValue() << " -> " << cs.voltageSwitch.getOut().getSignal().getValue() << std::endl;
+		sleep(1);
+	}
 	
 	cs.disableAxis();
 	

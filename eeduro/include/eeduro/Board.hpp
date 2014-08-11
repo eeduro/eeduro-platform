@@ -4,14 +4,16 @@
 #include <eeduro/Latch.hpp>
 #include <eeduro/Input.hpp>
 #include <eeduro/Output.hpp>
-#include <eeros/control/Block1i1o.hpp>
+#include <eeros/control/Block.hpp>
+#include <eeros/control/Input.hpp>
+#include <eeros/control/Output.hpp>
 #include <eeros/math/Matrix.hpp>
 
 #define NOF_AXIS (4)
 
 namespace eeduro {
 	
-	class Board : public eeros::control::Block1i1o<eeros::math::Matrix<NOF_AXIS, 1, double>> {
+	class Board : public eeros::control::Block {
 	
 	public:
 		Board();
@@ -22,6 +24,10 @@ namespace eeduro {
 
 		virtual void run();
 
+		virtual eeros::control::Input<eeros::math::Matrix<NOF_AXIS, 1, double>>& getIn();
+		virtual eeros::control::Output<eeros::math::Matrix<NOF_AXIS, 1, double>>& getPosOut();
+		virtual eeros::control::Output<eeros::math::Matrix<NOF_AXIS, 1, double>>& getSpeedOut();
+		
 		virtual void setEnable(bool value);
 		virtual void setEnable(int axis, bool value);
 		virtual void setReset(bool value);
@@ -42,10 +48,15 @@ namespace eeduro {
 			bool enable;
 			bool fault;
 			double position;
+			double speed;
 			bool current_limit[2];
 		} axis[NOF_AXIS];
 	
 	private:
+		eeros::control::Input<eeros::math::Matrix<NOF_AXIS, 1, double>> voltageIn;
+		eeros::control::Output<eeros::math::Matrix<NOF_AXIS, 1, double>> posOut;
+		eeros::control::Output<eeros::math::Matrix<NOF_AXIS, 1, double>> speedOut;
+		
 		int fd;
 
 		double voltage_limit = 12;
@@ -67,7 +78,9 @@ namespace eeduro {
 		} _axis[NOF_AXIS];
 		
 		bool clearPosition[NOF_AXIS];
-
+		
+		eeros::control::Signal<eeros::math::Matrix<NOF_AXIS, 1, double>> prevPos;
+		
 		Latch emergency_latch = { button[0] };
 		eeduro::hal::Input<bool> emergency = { "emergency", emergency_latch.state };
 

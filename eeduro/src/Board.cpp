@@ -100,10 +100,7 @@ bool Board::open(const char *dev) {
 }
 
 void Board::run() {
-
-//	static uint64_t timestamp = 0;
-//	timestamp += 1000000; // 1 ms // TODO -> use system time
-
+	static bool first = true;
 	int r;
 
 	uint32_t read_data;
@@ -119,12 +116,14 @@ void Board::run() {
 	bool axis_ok[NOF_AXIS];
 	for (int i = 0; i < NOF_AXIS; i++) axis_ok[i] = false;
 
-	eeros::math::Matrix<NOF_AXIS, 1> o;
+	eeros::math::Matrix<NOF_AXIS, 1> p;
+	eeros::math::Matrix<NOF_AXIS, 1> s;
+	uint64_t t = eeros::System::getTimeNs();
 	
 	for (int i = 0; i < NOF_AXIS; i++) {
 		read_data = 0;
 
-		_axis[i].voltage = in.getSignal().getValue()(i);
+		_axis[i].voltage = voltageIn.getSignal().getValue()(i);
 
 		double v = 0;
 
@@ -183,22 +182,33 @@ void Board::run() {
 			int16_t delta = (_axis[a].position - old);
 			if(clearPosition[a]) {
 				axis[a].position = 0;
+				axis[a].speed = 0;
 				clearPosition[a] = false; // set back
-// 				std::cout << "Pos cleard for axis " << a << std::endl;
 			}
 			else {
 				axis[a].position += k * delta;
-// 				if(a == 0) {
-// 					std::cout << "q" << a << ": delta = " << delta << ", pos = " << axis[a].position << std::endl;
-// 				}
+				if(first) {
+					axis[a].speed = 0;
+					prevPos.setTimestamp(t);
+					first = false;
+				}
+				else {
+					double tact = t / 1000000000.0;
+					double tprev = prevPos.getTimestamp() / 1000000000.0;
+					axis[a].speed = (axis[a].position - prevPos.getValue()[a]) / (tact - tprev);
+				}
 			}
-			o(a) = axis[a].position;
+			p(a) = axis[a].position;
+			s(a) = axis[a].speed;
 		}
 	}
-//	std::cout << "out = " << o << std::endl;
-	out.getSignal().setValue(o);
-	out.getSignal().setTimestamp(eeros::System::getTimeNs());
+	posOut.getSignal().setValue(p);
+	posOut.getSignal().setTimestamp(t);
+	speedOut.getSignal().setValue(s);
+	speedOut.getSignal().setTimestamp((t + prevPos.getTimestamp()) / 2);
 
+	prevPos = posOut.getSignal();
+	
 	bool all_ok = true;
 
 	for (int i = 0; i < NOF_AXIS; i++)
@@ -239,3 +249,16 @@ void Board::resetPositions() {
 		clearPosition[i] = true;
 	}
 }
+
+eeros::control::Input< eeros::math::Matrix< 4 > >& Board::getIn() {
+	return voltageIn;
+}
+
+eeros::control::Output< eeros::math::Matrix< 4 > >& Board::getPosOut() {
+	return posOut;
+}
+
+eeros::control::Output< eeros::math::Matrix< 4 > >& Board::getSpeedOut() {
+	return speedOut;
+}
+

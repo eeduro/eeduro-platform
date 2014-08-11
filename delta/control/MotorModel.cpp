@@ -22,7 +22,7 @@ void MotorModel::run() {
 	M = torque.getSignal().getValue();
 	w = speed.getSignal().getValue();
 	for(unsigned int i = 0; i < u.size(); i++) {
-		u[i] = RA[i] * M[i] / kM[i] + w[i] * 1 / kM[i];
+		u[i] = RA[i] * M[i] / kM[i] + w[i] * kM[i];
 	}
 	voltage.getSignal().setValue(u);
 	voltage.getSignal().setTimestamp(torque.getSignal().getTimestamp());
