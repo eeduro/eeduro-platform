@@ -24,6 +24,22 @@ namespace eeduro {
 		constexpr double w0 = 2 * pi * 1 / (2 * D * dt * 2 * pi);
 		constexpr double kp = w0 / (2 * D);
 		constexpr double kd = 2 * D * w0;
+		
+		constexpr double q012InitVoltage = 2.5; //[V]
+		constexpr double q3InitVoltage = 1.5; //[V]
+		
+		constexpr double q012SafeMin = -2.0 * i1524;
+		constexpr double q012SafeMax = -0.04 * i1524;
+		constexpr double q3SafeMin = 0.0 * i0816;
+		constexpr double q3SafeMax = 2.0 * i0816;
+		
+		constexpr double tcpReady_x = 0;
+		constexpr double tcpReady_y = 0;
+		constexpr double tcpReady_z = -0.03;
+		constexpr double tcpReady_phi = 1.0;
+		
+		constexpr double q012gearTorqueLimit = 0.3;
+		constexpr double q3gearTorqueLimit = 0.025;
 	}
 }
 

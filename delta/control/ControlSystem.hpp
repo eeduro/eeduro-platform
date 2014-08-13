@@ -33,9 +33,11 @@ namespace eeduro {
 			void enableAxis();
 			void disableAxis();
 			void initBoard();
-			void initAxis();
-			AxisVector getCurrentPos();
-			AxisVector getCurrentAxisPos();
+			void setVoltageForInitializing(AxisVector u);
+			bool switchToPosControl();
+			bool axisHomed();
+			AxisVector getTcpPos();
+			AxisVector getAxisPos();
 			void goToPos(double x, double y, double z, double phi);
 			
 //		protected:
@@ -44,7 +46,7 @@ namespace eeduro {
 			AxisVector RA;
 			Kinematic kinematic;
 			Jacobian jacobian;
-			bool initialized;
+			bool homed;
 			
 			// Blocks			
 			eeduro::Board										board;
@@ -70,8 +72,6 @@ namespace eeduro {
 			eeros::control::Switch<2, AxisVector>				voltageSwitch;
 			eeros::control::Constant<AxisVector>				voltageSetPoint;
 			eeduro::delta::DirectKinematic						directKin;
-			
-			eeros::control::Constant<AxisVector>				temp;
 			
 			eeros::control::TimeDomain timedomain;
 			

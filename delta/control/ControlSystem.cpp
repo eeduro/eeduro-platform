@@ -12,7 +12,7 @@ ControlSystem::ControlSystem() :
 	kM(kM1524, kM1524, kM1524, kM0816),
 	RA(RA1524, RA1524, RA1524, RA0816),
 	
-	initialized(false),
+	homed(false),
 	posController(kp),
 	speedController(kd),
 	inertia(jred),
@@ -21,7 +21,8 @@ ControlSystem::ControlSystem() :
 	voltageSwitch(1),
 	directKin(kinematic),
 	timedomain("Main time domain", dt, true) {
-	
+
+	torqueLimitation.enable();
 	torqueGear.setGain(1.0 / i);
 	angleGear.setGain(1.0 / i);
 	
@@ -44,9 +45,8 @@ ControlSystem::ControlSystem() :
 	jacobi.getJointPosInput().connect(angleGear.getOut());
 	jacobi.getTcpPosInput().connect(directKin.getOut());
 	torqueLimitation.getIn().connect(jacobi.getOut());
-//	torqueGear.getIn().connect(torqueLimitation.getOut());
-	torqueGear.getIn().connect(temp.getOut());
-//	angleGear.getIn().connect(board.getOut());
+	torqueGear.getIn().connect(torqueLimitation.getOut());
+	angleGear.getIn().connect(board.getPosOut());
 	motorModel.getTorqueIn().connect(torqueGear.getOut());
 	motorModel.getSpeedIn().connect(board.getSpeedOut());
 	voltageSwitch.getIn(0).connect(motorModel.getOut());
@@ -72,7 +72,6 @@ ControlSystem::ControlSystem() :
 	timedomain.addBlock(&motorModel);
 	timedomain.addBlock(&voltageSetPoint);
 	timedomain.addBlock(&voltageSwitch);
-	timedomain.addBlock(&temp);
 }
 
 void ControlSystem::start() {
@@ -94,27 +93,41 @@ void ControlSystem::disableAxis() {
 	board.setReset(true);
 }
 
-void ControlSystem::initAxis() {
-	if(initialized) return;
-	
-	voltageSetPoint.setValue({2.5, 2.5, 2.5, 1.5});
-	voltageSwitch.switchToInput(1);
-	
-	do {
-//		std::this_thread::sleep_for(std::chrono::microseconds(500)); // TODO doesn't compiles with linaro toolchain...
-		sleep(1);
-	} while(!allAxisStopped());
-	
-	board.resetPositions();
-	voltageSetPoint.setValue({0, 0, 0, 0});
-	voltageSwitch.switchToInput(0);
-	initialized = true;
+// void ControlSystem::initAxis() {
+// 	if(initialized) return;
+// 	
+// 	voltageSetPoint.setValue({2.5, 2.5, 2.5, 1.5});
+// 	voltageSwitch.switchToInput(1);
+// 	
+// 	do {
+// //		std::this_thread::sleep_for(std::chrono::microseconds(500)); // TODO doesn't compiles with linaro toolchain...
+// 		sleep(1);
+// 	} while(!allAxisStopped());
+// 	
+// 	board.resetPositions();
+// 	voltageSetPoint.setValue({0, 0, 0, 0});
+// 	voltageSwitch.switchToInput(0);
+// 	initialized = true;
+// }
+
+void ControlSystem::setVoltageForInitializing(AxisVector u) {
+	voltageSetPoint.setValue(u);
 }
 
+bool ControlSystem::switchToPosControl() {
+	if(homed || !allAxisStopped()) return false;
+	board.resetPositions();
+	setVoltageForInitializing({0, 0, 0, 0});
+	voltageSwitch.switchToInput(0);
+	homed = true;
+	return true;
+}
+
+
 void ControlSystem::goToPos(double x, double y, double z, double phi) {
-// 	AxisVector p;
-// 	p << x, y, z, phi;
-// 	posSetPoint.setValue(p);
+	AxisVector p;
+	p << x, y, z, phi;
+	posSetPoint.setValue(p);
 }
 
 void ControlSystem::initBoard() {
@@ -122,11 +135,11 @@ void ControlSystem::initBoard() {
 		throw EEROSException("failed to open SPI device");
 }
 
-AxisVector ControlSystem::getCurrentPos() {
+AxisVector ControlSystem::getTcpPos() {
 	return directKin.getOut().getSignal().getValue();
 }
 
-AxisVector ControlSystem::getCurrentAxisPos() {
+AxisVector ControlSystem::getAxisPos() {
 	return angleGear.getOut().getSignal().getValue();
 }
 
@@ -135,4 +148,8 @@ bool ControlSystem::allAxisStopped(double maxSpeed) {
 		if(board.getSpeedOut().getSignal().getValue()[i] > maxSpeed) return false;
 	}
 	return true;
+}
+
+bool ControlSystem::axisHomed() {
+	return homed;
 }

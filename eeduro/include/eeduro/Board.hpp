@@ -34,7 +34,7 @@ namespace eeduro {
 		virtual void setReset(int axisPair, bool value);
 
 		virtual void limit(double voltage);
-		virtual void resetEmergency();
+// 		virtual void resetEmergency();
 		virtual void resetPositions();
 		
 		bool transmission_ok;
@@ -42,7 +42,7 @@ namespace eeduro {
 		bool button[2];
 		bool reset[2];
 
-		Latch button_latch[2] = { button[0], button[1] };
+//		Latch button_latch[2] = { button[0], button[1] };
 
 		struct{
 			bool enable;
@@ -81,8 +81,11 @@ namespace eeduro {
 		
 		eeros::control::Signal<eeros::math::Matrix<NOF_AXIS, 1, double>> prevPos;
 		
-		Latch emergency_latch = { button[0] };
-		eeduro::hal::Input<bool> emergency = { "emergency", emergency_latch.state };
+// 		Latch emergency_latch = { button[0] };
+		eeduro::hal::Input<bool> emergency = { "emergency", button[0] };
+		
+// 		Latch approval_latch = { button[1] };
+		eeduro::hal::Input<bool> approval = { "approval", button[1] };
 
 		eeduro::hal::Input<bool> fault[NOF_AXIS] = {
 			{ "fault0", axis[0].fault },

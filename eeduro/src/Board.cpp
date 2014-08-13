@@ -43,10 +43,11 @@ Board::Board() :
 		clearPosition[i] = false;
 	}
 
-	resetEmergency();
+//	resetEmergency();
 
 	eeros::hal::HAL& hal = eeros::hal::HAL::instance();
 	hal.addPeripheralInput(&emergency);
+	hal.addPeripheralInput(&approval);
 	for (int i = 0; i < NOF_AXIS; i++) {
 		hal.addPeripheralInput(&fault[i]);
 		hal.addPeripheralInput(&position[i]);
@@ -171,11 +172,11 @@ void Board::run() {
 			axis[a].fault = ((read_data >> 25) & 0x1);
 
 			button[0] = ((read_data >> 20) & 0x1);
-			emergency_latch.run();
-			button_latch[0].run();
+// 			emergency_latch.run();
+// 			button_latch[0].run();
 
 			button[1] = ((read_data >> 21) & 0x1);
-			button_latch[1].run();
+// 			button_latch[1].run();
 
 			int16_t old = _axis[a].position;
 			_axis[a].position = (read_data & 0xffff);
@@ -215,6 +216,13 @@ void Board::run() {
 		if (!axis_ok[i]) all_ok = false;
 
 	transmission_ok = all_ok;
+	
+// 	static int count = 0;
+// 	if(count > 500) {
+// 		std::cout << "Board run OK" << std::endl;
+// 		count = 0;
+// 	}
+// 	count++;
 }
 
 void Board::setEnable(bool value) {
@@ -240,9 +248,9 @@ void Board::limit(double voltage) {
 		voltage_limit = voltage;
 }
 
-void Board::resetEmergency() {
-	emergency_latch.state = false;
-}
+// void Board::resetEmergency() {
+// 	emergency_latch.state = false;
+// }
 
 void Board::resetPositions() {
 	for(int i = 0; i < NOF_AXIS; i++) {

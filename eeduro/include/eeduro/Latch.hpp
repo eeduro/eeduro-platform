@@ -14,6 +14,15 @@ namespace eeduro
 				state = true;
 		}
 
+		virtual bool get() {
+			return state;
+		}
+		
+		virtual void reset() {
+			state = false;
+		}
+		
+//	protected:
 		bool state;
 		bool trigger;
 
