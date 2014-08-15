@@ -21,14 +21,19 @@ Board::Board() :
 		speed_Hz(500000),
 		transmission_ok(false)
 {
-	for (int i = 0; i < NOF_AXIS; i++) {
-		power_out[0] = false;
-		power_out[1] = false;
-		button[0] = false;
-		button[1] = false;
-		reset[0] = true;
-		reset[1] = true;
-
+	power_out[0] = false;
+	power_out[1] = false;
+	button[0] = false;
+	button[1] = false;
+	button[2] = false;
+	reset[0] = true;
+	reset[1] = true;
+	
+	for (int i = 0; i < 4; i++)
+		led[i] = false;
+	
+	for (int i = 0; i < NOF_AXIS; i++)
+	{
 		axis[i].position = 0;
 		axis[i].enable = false;
 		axis[i].fault = false;
@@ -152,6 +157,10 @@ void Board::run() {
 						((i & 0xf) << 28) |
 						(axis[i].enable << 27) |
 						((invert[i] ^ _axis[i].direction) << 26) |
+						((led[3]) << 25) |
+						((led[2]) << 24) |
+						((led[1]) << 23) |
+						((led[0]) << 22) |
 						(reset[1] << 21) |
 						(reset[0] << 20) |
 						(axis[i].current_limit[1] << 19) |
@@ -172,11 +181,13 @@ void Board::run() {
 			axis[a].fault = ((read_data >> 25) & 0x1);
 
 			button[0] = ((read_data >> 20) & 0x1);
-// 			emergency_latch.run();
-// 			button_latch[0].run();
+			button_latch[0].run();
 
 			button[1] = ((read_data >> 21) & 0x1);
-// 			button_latch[1].run();
+			button_latch[1].run();
+			
+			button[2] = ((read_data >> 22) & 0x1);
+			button_latch[2].run();
 
 			int16_t old = _axis[a].position;
 			_axis[a].position = (read_data & 0xffff);

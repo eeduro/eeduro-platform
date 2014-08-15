@@ -21,6 +21,9 @@ endif()
 # EEDURO Library
 add_subdirectory(eeduro)
 
+# EEDURO utilities
+add_subdirectory(util)
+
 # EEDURO Robots
 add_subdirectory(delta)
 add_subdirectory(omni)

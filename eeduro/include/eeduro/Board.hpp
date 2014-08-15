@@ -34,15 +34,15 @@ namespace eeduro {
 		virtual void setReset(int axisPair, bool value);
 
 		virtual void limit(double voltage);
-// 		virtual void resetEmergency();
 		virtual void resetPositions();
 		
 		bool transmission_ok;
 		bool power_out[2];
-		bool button[2];
+		bool button[3];
 		bool reset[2];
+		bool led[4];
 
-//		Latch button_latch[2] = { button[0], button[1] };
+		Latch button_latch[3] = { button[0], button[1], button[2] };
 
 		struct{
 			bool enable;
@@ -62,7 +62,6 @@ namespace eeduro {
 		double voltage_limit = 12;
 		const double max_voltage = 12;
 		const int encoder_ticks = 512 * 4;
-//		const double gear = 387283.0 / 5103.0;
 		const double k = 2 * 3.1415926535897932384626433832795 / ( static_cast<double>(encoder_ticks) );
 
 		const uint8_t  mode;
@@ -81,10 +80,8 @@ namespace eeduro {
 		
 		eeros::control::Signal<eeros::math::Matrix<NOF_AXIS, 1, double>> prevPos;
 		
-// 		Latch emergency_latch = { button[0] };
 		eeduro::hal::Input<bool> emergency = { "emergency", button[0] };
 		
-// 		Latch approval_latch = { button[1] };
 		eeduro::hal::Input<bool> approval = { "approval", button[1] };
 
 		eeduro::hal::Input<bool> fault[NOF_AXIS] = {
