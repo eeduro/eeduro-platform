@@ -1,4 +1,5 @@
 #include "ControlSystem.hpp"
+#include "../safety/DeltaSafetyProperties.hpp"
 
 #include <eeros/core/EEROSException.hpp>
 #include <unistd.h>
@@ -13,9 +14,12 @@ ControlSystem::ControlSystem() :
 	RA(RA1524, RA1524, RA1524, RA0816),
 	
 	homed(false),
+	
+	joystick("/dev/input/js0"),
+// 	pathPlanner({1, 1, 1, 1}, {10, 10, 10, 10}, dt), // TODO
 	posController(kp),
 	speedController(kd),
-	inertia(jred),
+	inertia(mtcp),
 	jacobi(jacobian),
 	motorModel(kM, RA),
 	voltageSwitch(1),
@@ -30,16 +34,21 @@ ControlSystem::ControlSystem() :
 	speedSum.negateInput(1);
 	
 	board.getIn().connect(voltageSwitch.getOut());
-	posSum.getIn(0).connect(posSetPoint.getOut());
+// 	posSum.getIn(0).connect(pathPlanner.getPosOut());
+	posSum.getIn(0).connect(joystick.getOut());
+// 	posSum.getIn(0).connect(posSetPoint.getOut());
 	posSum.getIn(1).connect(directKin.getOut());
 	posController.getIn().connect(posSum.getOut());
 	posDiff.getIn().connect(directKin.getOut());
 	speedSum.getIn(0).connect(posController.getOut());
 	speedSum.getIn(1).connect(posDiff.getOut());
-	speedSum.getIn(2).connect(speedSetPoint.getOut());
+// 	speedSum.getIn(2).connect(pathPlanner.getVelOut());
+// 	speedSum.getIn(2).connect(speedSetPoint.getOut());
 	speedLimitation.getIn().connect(speedSum.getOut());
 	speedController.getIn().connect(speedLimitation.getOut());
-	inertia.getIn().connect(speedController.getOut());
+	accSum.getIn(0).connect(speedController.getOut());
+// 	accSum.getIn(1).connect(spathPlanner.getAccOut());
+	inertia.getIn().connect(accSum.getOut());
 	forceLimitation.getIn().connect(inertia.getOut());
 	jacobi.getForceInput().connect(forceLimitation.getOut());
 	jacobi.getJointPosInput().connect(angleGear.getOut());
@@ -53,17 +62,20 @@ ControlSystem::ControlSystem() :
 	voltageSwitch.getIn(1).connect(voltageSetPoint.getOut());
 	directKin.getIn().connect(angleGear.getOut());
 	
+	timedomain.addBlock(&joystick);
+// 	timedomain.addBlock(&pathPlanner);
+// 	timedomain.addBlock(&posSetPoint);
+// 	timedomain.addBlock(&speedSetPoint);
 	timedomain.addBlock(&board);
 	timedomain.addBlock(&angleGear);
 	timedomain.addBlock(&directKin);
 	timedomain.addBlock(&posDiff);
-	timedomain.addBlock(&posSetPoint);
-	timedomain.addBlock(&speedSetPoint);
 	timedomain.addBlock(&posSum);
 	timedomain.addBlock(&posController);
 	timedomain.addBlock(&speedSum);
 	timedomain.addBlock(&speedLimitation);
 	timedomain.addBlock(&speedController);
+	timedomain.addBlock(&accSum);
 	timedomain.addBlock(&inertia);
 	timedomain.addBlock(&forceLimitation);
 	timedomain.addBlock(&jacobi);
@@ -119,6 +131,7 @@ bool ControlSystem::switchToPosControl() {
 	board.resetPositions();
 	setVoltageForInitializing({0, 0, 0, 0});
 	voltageSwitch.switchToInput(0);
+// 	pathPlanner.setInitPos({0, 0, 0, 0});
 	homed = true;
 	return true;
 }
@@ -127,7 +140,8 @@ bool ControlSystem::switchToPosControl() {
 void ControlSystem::goToPos(double x, double y, double z, double phi) {
 	AxisVector p;
 	p << x, y, z, phi;
-	posSetPoint.setValue(p);
+// 	pathPlanner.gotoPoint(p);
+// 	posSetPoint.setValue(p);
 }
 
 void ControlSystem::initBoard() {

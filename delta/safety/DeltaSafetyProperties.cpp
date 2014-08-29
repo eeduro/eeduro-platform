@@ -88,24 +88,24 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 	addEventToLevelAndAbove(systemOn, doEmergency, emergency, kPublicEvent);
 	
 	// ############ Define input states and events for all levels ############
-// 	level(off               ).setInputActions({ ignore(emergencyStop),                   ignore(approval),                         ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
-	level(swInitializing    ).setInputActions({ ignore(emergencyStop),                   ignore(approval),                         ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
-	level(swInitialized     ).setInputActions({ ignore(emergencyStop),                   ignore(approval),                         ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
-	level(emergency         ).setInputActions({ ignore(emergencyStop),                   check(approval, true, resetingEmergency), ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
-	level(resetingEmergency ).setInputActions({ check(emergencyStop, true, doEmergency), ignore(approval),                         ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
-//	level(waitingForApproval).setInputActions({ ignore(emergencyStop),                   check(approval, true, doControlStart),    ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
-	level(controlStopping   ).setInputActions({ ignore(emergencyStop),                   ignore(approval),                         ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
-	level(controlStarting   ).setInputActions({ ignore(emergencyStop),                   ignore(approval),                         ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
-	level(systemOn          ).setInputActions({ ignore(emergencyStop),                   check(approval, true, doPoweringUp),      ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
-	level(poweringDown      ).setInputActions({ check(emergencyStop, true, doEmergency), ignore(approval),                         ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
-	level(poweringUp        ).setInputActions({ check(emergencyStop, true, doEmergency), ignore(approval),                         ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
-	level(powerOn           ).setInputActions({ check(emergencyStop, true, doEmergency), ignore(approval),                         ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
-	level(homeing           ).setInputActions({ check(emergencyStop, true, doEmergency), ignore(approval),                         ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
-	level(axisHomed         ).setInputActions({ check(emergencyStop, true, doEmergency), ignore(approval),                         ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
-	level(parking           ).setInputActions({ check(emergencyStop, true, doEmergency), ignore(approval),                         range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency) });
-	level(parked            ).setInputActions({ check(emergencyStop, true, doEmergency), ignore(approval),                         ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
-	level(systemReady       ).setInputActions({ check(emergencyStop, true, doEmergency), ignore(approval),                         range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency) });
-	level(moving            ).setInputActions({ check(emergencyStop, true, doEmergency), ignore(approval),                         range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency) });
+	level(off               ).setInputActions({ ignore(emergencyStop),                    ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
+	level(swInitializing    ).setInputActions({ ignore(emergencyStop),                    ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
+	level(swInitialized     ).setInputActions({ ignore(emergencyStop),                    ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
+	level(emergency         ).setInputActions({ ignore(emergencyStop),                    check(approval, false, resetingEmergency), ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
+	level(resetingEmergency ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
+//	level(waitingForApproval).setInputActions({ ignore(emergencyStop),                    check(approval, false, doControlStart),    ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
+	level(controlStopping   ).setInputActions({ ignore(emergencyStop),                    ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
+	level(controlStarting   ).setInputActions({ ignore(emergencyStop),                    ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
+	level(systemOn          ).setInputActions({ ignore(emergencyStop),                    check(approval, false, doPoweringUp),      ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
+	level(poweringDown      ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
+	level(poweringUp        ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
+	level(powerOn           ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
+	level(homeing           ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
+	level(axisHomed         ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
+	level(parking           ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency) });
+	level(parked            ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
+	level(systemReady       ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency) });
+	level(moving            ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency) });
 	
 	// ############ Define output states and events for all levels ############
 	level(off               ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false) });
@@ -173,7 +173,6 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 		}
 		else if(count > static_cast<unsigned int>(1.0 / dt)) {
 			if(controlSys->switchToPosControl()) {
-				
 				privateContext->triggerEvent(homeingDone);
 			}
 		}
@@ -182,14 +181,19 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 	
 	level(axisHomed).setLevelAction([&](SafetyContext* privateContext) {
 		static bool first = true;
+		static int count = 0;
 		if(first) {
 			first = false;
 			controlSys->goToPos(tcpReady_x, tcpReady_y, tcpReady_z, tcpReady_phi);
+			std::cout << "tcp = " << controlSys->getTcpPos() << std::endl;
 		}
 		else {
 			AxisVector tcp = controlSys->getTcpPos();
+			count++;
 			if(tcp(2) <= tcpReady_z) {
-// 				std::cout << "q = " << controlSys->getAxisPos() << std::endl; 
+// 			if(controlSys->pathPlanner.posReached()) {
+ 				std::cout << "FINISHED: tcp = " << tcp << ", count = " << count << std::endl;
+// 				controlSys->pathPlanner.setInitPos(controlSys->getTcpPos());
 				privateContext->triggerEvent(doSystemReady);
 				
 			}

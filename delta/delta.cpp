@@ -1,10 +1,13 @@
 #include "control/ControlSystem.hpp"
 #include "safety/DeltaSafetyProperties.hpp"
+#include "sequencer/MoveBlockSequence.hpp"
+#include "sequencer/MainSequence.hpp"
 
 #include <eeros/hal/HAL.hpp>
 #include <eeros/safety/SafetySystem.hpp>
 #include <eeros/logger/Logger.hpp>
 #include <eeros/logger/StreamLogWriter.hpp>
+#include <eeros/sequencer/Sequencer.hpp>
 
 #include <iostream>
 #include <unistd.h>
@@ -16,6 +19,7 @@ using namespace eeros;
 using namespace eeros::logger;
 using namespace eeros::hal;
 using namespace eeros::safety;
+using namespace eeros::sequencer;
 
 volatile bool running = true;
 
@@ -43,38 +47,27 @@ int main(int argc, char* argv[]) {
 	DeltaSafetyProperties safetyProperties(&controlSys);
 	SafetySystem safetySys(safetyProperties, dt);
 	
-// 	// initialize axis
-// 	std::cout << "  Initializing axis... " << std::endl;
-// 	controlSys.enableAxis();
-// 	controlSys.initAxis();
-// 	std::cout << "  -> done" << std::endl;
-// 	
-// 	//cs.goToPos(0.0, 0.0, -0.02, 0.1);
-// 	controlSys.posSetPoint.setValue({0.0, 0.0, -0.04, -0.01});
-// 	
-// 	double x = 0, y = 0;
-// 	for(int i = 0; i < 20; i++) {
-// 		std::cout << controlSys.jacobi.getOut().getSignal().getValue() << " -> " << controlSys.torqueLimitation.getOut().getSignal().getValue() << std::endl;
-// 		sleep(1);
-// 		controlSys.posSetPoint.setValue({x, y, -0.04, -0.01});
-// 		x += 0.01; y += 0.01;
-// 		if(x > 0.02) x = -0.02;
-// 		if(y > 0.02) y = -0.02;
-// 		std::cout << controlSys.board.button[0]  << controlSys.board.button[1] << std::endl;
-// 	}
-// 	
-// 	controlSys.disableAxis();
-// 	sleep(1);
-// 	
-// 	// stop control system
-// 	controlSys.stop();
+	// create sequencer
+// 	Sequencer sequencer;
+// 	MainSequence mainSequence(&sequencer, &controlSys, &safetySys);
+	constexpr int nofpos = 6;
+	double x[nofpos] = {0.01, 0.01, -0.01, -0.01, 0.0, 0.0};
+	double y[nofpos] = {-0.01, 0.01, 0.01, -0.01, 0.0, 0.0};
+	double z[nofpos] = {-0.01, -0.02, -0.01, -0.05, -0.06, -0.05};
+	double phi[nofpos] = {0.1, 0.5, 0.1, 0.5, 0.1, 0.5};
+	int i = 0;
+// 	AxisVector limit = {0, 100, 100, 100};
+// 	controlSys.forceLimitation.setLimit(-limit, limit);
 	while(running) {
-// 		std::cout << "[E] " << HAL::instance().getLogicPeripheralInput("emergency")->get() << " (" << controlSys.board.button[0] << ')' << std::endl;
-// 		std::cout << "[A] " << HAL::instance().getLogicPeripheralInput("approval")->get() << " (" << controlSys.board.button[1] <<  ')' << std::endl;
-//		std::cout << "q = " << controlSys.getAxisPos() << std::endl;
-		controlSys.board.power_out[0] ^= true;
-//		controlSys.board.power_out[1] ^= true;
-		usleep(300000);
+// 		std::cout << "TCP z: " << controlSys.pathPlanner.getPosOut().getSignal().getValue()[2] << std::endl;
+		std::cout << controlSys.joystick.getOut().getSignal().getValue() << std::endl;
+		if(controlSys.axisHomed()) {
+			controlSys.goToPos(0, 0, z[i], 0.2);
+// 			controlSys.forceLimitation.enable();
+// 			controlSys.goToPos(0, 0, -0.03, 0.5);
+			i = (i + 1) % nofpos;
+		}
+		usleep(1000000);
 	}
 	
 	log.info() << "Shuting down..." << endl;

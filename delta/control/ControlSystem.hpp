@@ -10,11 +10,13 @@
 #include <eeros/math/Matrix.hpp>
 #include <eeros/control/Switch.hpp>
 #include <eeros/control/Saturation.hpp>
+#include <eeros/control/XBoxInput.hpp>
 #include "Kinematic.hpp"
 #include "Jacobian.hpp"
 #include "DirectKinematic.hpp"
 #include "Jacobi.hpp"
 #include "MotorModel.hpp"
+#include "PathPlanner.hpp"
 #include "constants.hpp"
 #include "types.hpp"
 
@@ -51,15 +53,19 @@ namespace eeduro {
 			// Blocks			
 			eeduro::Board										board;
 			
-			eeros::control::Constant<AxisVector>				posSetPoint;
+			eeros::control::XBoxInput							joystick;
+			
+// 			eeros::control::Constant<AxisVector>				posSetPoint;
+// 			eeduro::delta::PathPlanner							pathPlanner;
 			eeros::control::Sum<2, AxisVector>					posSum;
 			eeros::control::Gain<AxisVector>					posController;
 			eeros::control::D<AxisVector>						posDiff;
 			
 			eeros::control::Sum<3, AxisVector>					speedSum;
-			eeros::control::Constant<AxisVector>				speedSetPoint;
+// 			eeros::control::Constant<AxisVector>				speedSetPoint;
 			eeros::control::Saturation<AxisVector>				speedLimitation;
 			eeros::control::Gain<AxisVector>					speedController;
+			eeros::control::Sum<2, AxisVector>					accSum;
 			
 			eeros::control::Gain<AxisVector>					inertia;
 			eeros::control::Saturation<AxisVector>				forceLimitation;
