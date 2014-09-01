@@ -16,7 +16,9 @@ ControlSystem::ControlSystem() :
 	homed(false),
 	
 	joystick("/dev/input/js0"),
-// 	pathPlanner({1, 1, 1, 1}, {10, 10, 10, 10}, dt), // TODO
+//	mouse("/dev/input/mice0"),
+	pathPlanner({1, 1, 1, 1}, {10, 10, 10, 10}, dt), // TODO
+	inputSwitch(0),
 	posController(kp),
 	speedController(kd),
 	inertia(mtcp),
@@ -34,16 +36,17 @@ ControlSystem::ControlSystem() :
 	speedSum.negateInput(1);
 	
 	board.getIn().connect(voltageSwitch.getOut());
-// 	posSum.getIn(0).connect(pathPlanner.getPosOut());
-	posSum.getIn(0).connect(joystick.getOut());
-// 	posSum.getIn(0).connect(posSetPoint.getOut());
+	
+	inputSwitch.getIn(0).connect(pathPlanner.getPosOut());
+// 	inputSwitch.getIn(1).connect(mouse.getOut());
+	inputSwitch.getIn(2).connect(joystick.getOut());
+	posSum.getIn(0).connect(inputSwitch.getOut());
 	posSum.getIn(1).connect(directKin.getOut());
 	posController.getIn().connect(posSum.getOut());
 	posDiff.getIn().connect(directKin.getOut());
 	speedSum.getIn(0).connect(posController.getOut());
 	speedSum.getIn(1).connect(posDiff.getOut());
 // 	speedSum.getIn(2).connect(pathPlanner.getVelOut());
-// 	speedSum.getIn(2).connect(speedSetPoint.getOut());
 	speedLimitation.getIn().connect(speedSum.getOut());
 	speedController.getIn().connect(speedLimitation.getOut());
 	accSum.getIn(0).connect(speedController.getOut());
@@ -63,9 +66,9 @@ ControlSystem::ControlSystem() :
 	directKin.getIn().connect(angleGear.getOut());
 	
 	timedomain.addBlock(&joystick);
-// 	timedomain.addBlock(&pathPlanner);
-// 	timedomain.addBlock(&posSetPoint);
-// 	timedomain.addBlock(&speedSetPoint);
+// 	timedomain.addBlock(&mouse);
+	timedomain.addBlock(&pathPlanner);
+	timedomain.addBlock(&inputSwitch);
 	timedomain.addBlock(&board);
 	timedomain.addBlock(&angleGear);
 	timedomain.addBlock(&directKin);
@@ -105,23 +108,6 @@ void ControlSystem::disableAxis() {
 	board.setReset(true);
 }
 
-// void ControlSystem::initAxis() {
-// 	if(initialized) return;
-// 	
-// 	voltageSetPoint.setValue({2.5, 2.5, 2.5, 1.5});
-// 	voltageSwitch.switchToInput(1);
-// 	
-// 	do {
-// //		std::this_thread::sleep_for(std::chrono::microseconds(500)); // TODO doesn't compiles with linaro toolchain...
-// 		sleep(1);
-// 	} while(!allAxisStopped());
-// 	
-// 	board.resetPositions();
-// 	voltageSetPoint.setValue({0, 0, 0, 0});
-// 	voltageSwitch.switchToInput(0);
-// 	initialized = true;
-// }
-
 void ControlSystem::setVoltageForInitializing(AxisVector u) {
 	voltageSetPoint.setValue(u);
 }
@@ -140,8 +126,7 @@ bool ControlSystem::switchToPosControl() {
 void ControlSystem::goToPos(double x, double y, double z, double phi) {
 	AxisVector p;
 	p << x, y, z, phi;
-// 	pathPlanner.gotoPoint(p);
-// 	posSetPoint.setValue(p);
+	pathPlanner.gotoPoint(p);
 }
 
 void ControlSystem::initBoard() {

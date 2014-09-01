@@ -20,9 +20,9 @@ void MainSequence::run() {
 	log.trace() << "Sequencer '" << name << "': started.";
 	yield();
 	log.trace() << "Sequencer '" << name << "': waiting until robot is ready...";
-// 	while(safetySys->level() != parked) {
-// 		yield();
-// 	}
+	while(safetySys->getCurrentLevel().getId() != systemReady) {
+		yield();
+	}
 
 	log.info() << "Press the blue button for automatic play.";
 	while(controlSys->board.button_latch[0].get() != true) {

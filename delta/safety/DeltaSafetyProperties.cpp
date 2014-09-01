@@ -46,7 +46,6 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 		{ swInitialized,      "Software initialized",                                  },
 		{ emergency,          "EMERGENCY state",                                       },
 		{ resetingEmergency,  "Reseting emergency state",                              },
-//		{ waitingForApproval, "Waiting for approval",                                  },
 		{ controlStopping,    "Stopping control system",                               },
 		{ controlStarting,    "Starting control system",                               },
 		{ systemOn,           "System is on, drives disabled, waiting for approval",   },
@@ -58,7 +57,9 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 		{ parking,            "Parking: moving TCP to park position",                  },
 		{ parked,             "Robot parked: TCP in park position, axis disabled",     },
 		{ systemReady,        "System ready: not moving, axis enabled and controlled", },
-		{ moving,             "Robot is moving",                                       }
+		{ autoMoving,         "Robot is moving, pathplanner active",                   },
+		{ mouseTeaching,      "Robot is moving, mouse input",                          },
+		{ joystickTeaching,   "Robot is moving, joystick input",                       }
 	};
 	
 	// ############ Add events to the levels ############
@@ -68,7 +69,6 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 	level(emergency         ).addEvent(doEmergencyReset,     resetingEmergency,  kPublicEvent);
 	level(resetingEmergency ).addEvent(emergencyResetDone,   systemOn,           kPrivateEvent);
 	level(resetingEmergency ).addEvent(doEmergency,          emergency,          kPrivateEvent);
-//	level(waitingForApproval).addEvent(doControlStart,       controlStarting,    kPublicEvent);
 	level(controlStopping   ).addEvent(controlStoppingDone,  off,                kPublicEvent);
 	level(controlStarting   ).addEvent(controlStartingDone,  systemOn,           kPrivateEvent);
 	level(systemOn          ).addEvent(doControlStop,        controlStopping,    kPublicEvent);
@@ -81,9 +81,13 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 	level(axisHomed         ).addEvent(doSystemReady,        systemReady,        kPrivateEvent);
 	level(parking           ).addEvent(parkingDone,          parked,             kPrivateEvent);
 	level(parked            ).addEvent(doSystemReady,        systemReady,        kPublicEvent);
-	level(systemReady       ).addEvent(doMoving,             moving,             kPublicEvent);
+	level(systemReady       ).addEvent(doAutoMoving,         autoMoving,         kPublicEvent);
+	level(systemReady       ).addEvent(doMouseTeaching,      autoMoving,         kPublicEvent);
+	level(systemReady       ).addEvent(doJoystickTeaching,   autoMoving,         kPublicEvent);
 	level(systemReady       ).addEvent(doParking,            parking,            kPublicEvent);
-	level(moving            ).addEvent(stopMoving,           systemReady,        kPublicEvent);
+	level(autoMoving        ).addEvent(stopMoving,           systemReady,        kPublicEvent);
+	level(mouseTeaching     ).addEvent(stopMoving,           systemReady,        kPublicEvent);
+	level(joystickTeaching  ).addEvent(stopMoving,           systemReady,        kPublicEvent);
 	
 	addEventToLevelAndAbove(systemOn, doEmergency, emergency, kPublicEvent);
 	
@@ -105,7 +109,9 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 	level(parking           ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency) });
 	level(parked            ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
 	level(systemReady       ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency) });
-	level(moving            ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency) });
+	level(autoMoving        ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency) });
+	level(mouseTeaching     ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency) });
+	level(joystickTeaching  ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency) });
 	
 	// ############ Define output states and events for all levels ############
 	level(off               ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false) });
@@ -125,7 +131,9 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 	level(parking           ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
 	level(parked            ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false) });
 	level(systemReady       ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
-	level(moving            ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
+	level(autoMoving        ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
+	level(mouseTeaching     ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
+	level(joystickTeaching  ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
 
 	// Define and add level functions
 	level(off).setLevelAction([&](SafetyContext* privateContext) {
@@ -190,7 +198,7 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 		else {
 			AxisVector tcp = controlSys->getTcpPos();
 			count++;
-			if(tcp(2) <= tcpReady_z) {
+			if(tcp(2) <= tcpReady_z) { // TODO
 // 			if(controlSys->pathPlanner.posReached()) {
  				std::cout << "FINISHED: tcp = " << tcp << ", count = " << count << std::endl;
 // 				controlSys->pathPlanner.setInitPos(controlSys->getTcpPos());

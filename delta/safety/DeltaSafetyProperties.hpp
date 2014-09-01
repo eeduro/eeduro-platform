@@ -33,7 +33,9 @@ namespace eeduro {
 			parkingDone,
 			homeingDone,
 			doSystemReady,
-			doMoving,
+			doAutoMoving,
+			doMouseTeaching,
+			doJoystickTeaching,
 			stopMoving
 		};
 		
@@ -56,7 +58,9 @@ namespace eeduro {
 			parking = 32,
 			parked = 33,
 			systemReady = 40,
-			moving = 50
+			autoMoving = 50,
+			mouseTeaching = 51,
+			joystickTeaching = 52
 		};
 
 		class DeltaSafetyProperties : public eeros::safety::SafetyProperties {

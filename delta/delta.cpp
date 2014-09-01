@@ -30,12 +30,12 @@ void signalHandler(int signum) {
 int main(int argc, char* argv[]) {
 	signal(SIGINT, signalHandler);
 	
-	std::cout << "Application eeduro-delta started..." << std::endl;
-	
 	StreamLogWriter w(std::cout);
 	Logger<LogWriter>::setDefaultWriter(&w);
-	w.show();
+	w.show(~0);
 	Logger<LogWriter> log('M');
+	
+	log.trace() << "Application eeduro-delta started...";
 	
 	// create control system
 	ControlSystem controlSys;
@@ -48,25 +48,27 @@ int main(int argc, char* argv[]) {
 	SafetySystem safetySys(safetyProperties, dt);
 	
 	// create sequencer
-// 	Sequencer sequencer;
-// 	MainSequence mainSequence(&sequencer, &controlSys, &safetySys);
-	constexpr int nofpos = 6;
-	double x[nofpos] = {0.01, 0.01, -0.01, -0.01, 0.0, 0.0};
-	double y[nofpos] = {-0.01, 0.01, 0.01, -0.01, 0.0, 0.0};
-	double z[nofpos] = {-0.01, -0.02, -0.01, -0.05, -0.06, -0.05};
-	double phi[nofpos] = {0.1, 0.5, 0.1, 0.5, 0.1, 0.5};
-	int i = 0;
+	Sequencer sequencer;
+	MainSequence mainSequence(&sequencer, &controlSys, &safetySys);
+	sequencer.start(&mainSequence);
+	
+	// 	constexpr int nofpos = 6;
+// 	double x[nofpos] = {0.01, 0.01, -0.01, -0.01, 0.0, 0.0};
+// 	double y[nofpos] = {-0.01, 0.01, 0.01, -0.01, 0.0, 0.0};
+// 	double z[nofpos] = {-0.01, -0.02, -0.01, -0.05, -0.06, -0.05};
+// 	double phi[nofpos] = {0.1, 0.5, 0.1, 0.5, 0.1, 0.5};
+// 	int i = 0;
 // 	AxisVector limit = {0, 100, 100, 100};
 // 	controlSys.forceLimitation.setLimit(-limit, limit);
 	while(running) {
 // 		std::cout << "TCP z: " << controlSys.pathPlanner.getPosOut().getSignal().getValue()[2] << std::endl;
-		std::cout << controlSys.joystick.getOut().getSignal().getValue() << std::endl;
-		if(controlSys.axisHomed()) {
-			controlSys.goToPos(0, 0, z[i], 0.2);
+// 		std::cout << controlSys.joystick.getOut().getSignal().getValue() << std::endl;
+// 		if(controlSys.axisHomed()) {
+// 			controlSys.goToPos(0, 0, z[i], 0.2);
 // 			controlSys.forceLimitation.enable();
 // 			controlSys.goToPos(0, 0, -0.03, 0.5);
-			i = (i + 1) % nofpos;
-		}
+// 			i = (i + 1) % nofpos;
+// 		}
 		usleep(1000000);
 	}
 	
