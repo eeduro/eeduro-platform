@@ -54,7 +54,7 @@ namespace eeduro {
 			poweringUp = 22,
 			powerOn = 25,
 			homeing = 30,
-			axisHomed = 31,
+			axesHomed = 31,
 			parking = 32,
 			parked = 33,
 			systemReady = 40,

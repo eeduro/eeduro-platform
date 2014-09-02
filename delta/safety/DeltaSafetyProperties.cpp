@@ -51,12 +51,12 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 		{ systemOn,           "System is on, drives disabled, waiting for approval",   },
 		{ poweringDown,       "Powering down: disabeling drives",                      },
 		{ poweringUp,         "Powering up: enabeling drives",                         },
-		{ powerOn,            "Power on, 0V for all axis",                             },
-		{ homeing,            "Automatic homeing for all axis",                        },
-		{ axisHomed,          "Axis homed, moving TCP to ready position",              },
+		{ powerOn,            "Power on, 0V for all axes",                             },
+		{ homeing,            "Automatic homeing for all axes",                        },
+		{ axesHomed,          "Axes homed, moving TCP to ready position",              },
 		{ parking,            "Parking: moving TCP to park position",                  },
-		{ parked,             "Robot parked: TCP in park position, axis disabled",     },
-		{ systemReady,        "System ready: not moving, axis enabled and controlled", },
+		{ parked,             "Robot parked: TCP in park position, axes disabled",     },
+		{ systemReady,        "System ready: not moving, axes enabled and controlled", },
 		{ autoMoving,         "Robot is moving, pathplanner active",                   },
 		{ mouseTeaching,      "Robot is moving, mouse input",                          },
 		{ joystickTeaching,   "Robot is moving, joystick input",                       }
@@ -77,8 +77,8 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 	level(poweringUp        ).addEvent(poweringUpDone,       powerOn,            kPrivateEvent);
 	level(powerOn           ).addEvent(doPoweringDown,       poweringDown,       kPublicEvent);
 	level(powerOn           ).addEvent(doHoming,             homeing,            kPublicEvent);
-	level(homeing           ).addEvent(homeingDone,          axisHomed,          kPrivateEvent);
-	level(axisHomed         ).addEvent(doSystemReady,        systemReady,        kPrivateEvent);
+	level(homeing           ).addEvent(homeingDone,          axesHomed,          kPrivateEvent);
+	level(axesHomed         ).addEvent(doSystemReady,        systemReady,        kPrivateEvent);
 	level(parking           ).addEvent(parkingDone,          parked,             kPrivateEvent);
 	level(parked            ).addEvent(doSystemReady,        systemReady,        kPublicEvent);
 	level(systemReady       ).addEvent(doAutoMoving,         autoMoving,         kPublicEvent);
@@ -105,7 +105,7 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 	level(poweringUp        ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
 	level(powerOn           ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
 	level(homeing           ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
-	level(axisHomed         ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
+	level(axesHomed         ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
 	level(parking           ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency) });
 	level(parked            ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
 	level(systemReady       ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency) });
@@ -127,7 +127,7 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 	level(poweringUp        ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
 	level(powerOn           ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
 	level(homeing           ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
-	level(axisHomed         ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
+	level(axesHomed         ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
 	level(parking           ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
 	level(parked            ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false) });
 	level(systemReady       ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
@@ -187,7 +187,7 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 		count++;
 	});
 	
-	level(axisHomed).setLevelAction([&](SafetyContext* privateContext) {
+	level(axesHomed).setLevelAction([&](SafetyContext* privateContext) {
 		static bool first = true;
 		static int count = 0;
 		if(first) {
