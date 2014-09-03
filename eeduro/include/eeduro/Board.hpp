@@ -80,9 +80,9 @@ namespace eeduro {
 		
 		eeros::control::Signal<eeros::math::Matrix<NOF_AXIS, 1, double>> prevPos;
 		
-		eeduro::hal::Input<bool> emergency = { "emergency", button[0] };
+		eeduro::hal::Input<bool> emergency = { "emergency", button[1] };
 		
-		eeduro::hal::Input<bool> approval = { "approval", button[1] };
+		eeduro::hal::Input<bool> approval = { "approval", button[0] };
 
 		eeduro::hal::Input<bool> fault[NOF_AXIS] = {
 			{ "fault0", axis[0].fault },
