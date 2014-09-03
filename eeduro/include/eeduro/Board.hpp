@@ -82,7 +82,7 @@ namespace eeduro {
 		
 		eeduro::hal::Input<bool> emergency = { "emergency", button[1] };
 		
-		eeduro::hal::Input<bool> approval = { "approval", button[0] };
+		eeduro::hal::Input<bool> approval = { "approval", button[2] };
 
 		eeduro::hal::Input<bool> fault[NOF_AXIS] = {
 			{ "fault0", axis[0].fault },
