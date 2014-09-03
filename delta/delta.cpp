@@ -7,6 +7,7 @@
 #include <eeros/safety/SafetySystem.hpp>
 #include <eeros/logger/Logger.hpp>
 #include <eeros/logger/StreamLogWriter.hpp>
+#include <eeros/logger/SysLogWriter.hpp>
 #include <eeros/sequencer/Sequencer.hpp>
 
 #include <iostream>
@@ -31,8 +32,13 @@ int main(int argc, char* argv[]) {
 	signal(SIGINT, signalHandler);
 	
 	StreamLogWriter w(std::cout);
+	SysLogWriter s("delta");
+	w.show();
+	s.show();
+	
 	Logger<LogWriter>::setDefaultWriter(&w);
-	w.show(~0);
+// 	Logger<LogWriter>::setDefaultWriter(&s);
+	
 	Logger<LogWriter> log('M');
 	
 	log.trace() << "Application eeduro-delta started...";
@@ -60,7 +66,7 @@ int main(int argc, char* argv[]) {
 // 	int i = 0;
 // 	AxisVector limit = {0, 100, 100, 100};
 // 	controlSys.forceLimitation.setLimit(-limit, limit);
-	while(running) {
+	while(running && sequencer.getState() != state::terminated) {
 // 		std::cout << "TCP z: " << controlSys.pathPlanner.getPosOut().getSignal().getValue()[2] << std::endl;
 //		std::cout << controlSys.joystick.getOut().getSignal().getValue() << std::endl;
 // 		std::cout << controlSys.inputSwitch.getOut().getSignal().getValue() << std::endl;
@@ -73,7 +79,7 @@ int main(int argc, char* argv[]) {
 		usleep(1000000);
 	}
 	
-	log.info() << "Shuting down..." << endl;
+	log.info() << "Shuting down...";
 	
 	safetySys.triggerEvent(doParking);
 	safetySys.shutdown();
