@@ -11,6 +11,7 @@
 #include <eeros/control/Switch.hpp>
 #include <eeros/control/Saturation.hpp>
 #include <eeros/control/XBoxInput.hpp>
+#include <eeros/control/MouseInput.hpp>
 #include "Kinematic.hpp"
 #include "Jacobian.hpp"
 #include "DirectKinematic.hpp"
@@ -54,7 +55,7 @@ namespace eeduro {
 			eeduro::Board										board;
 			
 			eeros::control::XBoxInput							joystick;
-//			eeros::control::MouseInput							mouse;
+			eeros::control::MouseInput							mouse;
 			
 			eeduro::delta::PathPlanner							pathPlanner;
 			eeros::control::Switch<3, AxisVector>				inputSwitch;

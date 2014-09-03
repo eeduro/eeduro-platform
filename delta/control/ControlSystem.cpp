@@ -16,9 +16,9 @@ ControlSystem::ControlSystem() :
 	homed(false),
 	
 	joystick("/dev/input/js0"),
-//	mouse("/dev/input/mice0"),
+	mouse("/dev/input/event1"),
 	pathPlanner({1, 1, 1, 1}, {10, 10, 10, 10}, dt), // TODO
-	inputSwitch(0),
+	inputSwitch(1),
 	posController(kp),
 	speedController(kd),
 	inertia(mtcp),
@@ -38,7 +38,7 @@ ControlSystem::ControlSystem() :
 	board.getIn().connect(voltageSwitch.getOut());
 	
 	inputSwitch.getIn(0).connect(pathPlanner.getPosOut());
-// 	inputSwitch.getIn(1).connect(mouse.getOut());
+ 	inputSwitch.getIn(1).connect(mouse.getOut());
 	inputSwitch.getIn(2).connect(joystick.getOut());
 	posSum.getIn(0).connect(inputSwitch.getOut());
 	posSum.getIn(1).connect(directKin.getOut());
@@ -66,7 +66,7 @@ ControlSystem::ControlSystem() :
 	directKin.getIn().connect(angleGear.getOut());
 	
 	timedomain.addBlock(&joystick);
-// 	timedomain.addBlock(&mouse);
+ 	timedomain.addBlock(&mouse);
 	timedomain.addBlock(&pathPlanner);
 	timedomain.addBlock(&inputSwitch);
 	timedomain.addBlock(&board);
