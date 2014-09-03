@@ -25,8 +25,9 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 	enable1 = hal.getLogicPeripheralOutput("enable1");
 	enable2 = hal.getLogicPeripheralOutput("enable2");
 	enable3 = hal.getLogicPeripheralOutput("enable3");
+	led = hal.getLogicPeripheralOutput("led1");
 	
-	criticalOutputs = { power, enable0, enable1, enable2, enable3 };
+	criticalOutputs = { power, enable0, enable1, enable2, enable3, led };
 	
 	// ############ Define criticcal inputs ############
 	emergencyStop = hal.getLogicPeripheralInput("emergency");
@@ -114,26 +115,26 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 	level(joystickTeaching  ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency), range(q0, q012SafeMin, q012SafeMax, doEmergency) });
 	
 	// ############ Define output states and events for all levels ############
-	level(off               ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false) });
-	level(swInitializing    ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false) });
-	level(swInitialized     ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false) });
-	level(emergency         ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false) });
-	level(resetingEmergency ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false) });
-//	level(waitingForApproval).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false) });
-	level(controlStopping   ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false) });
-	level(controlStarting   ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false) });
-	level(systemOn          ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false) });
-	level(poweringDown      ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false) });
-	level(poweringUp        ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
-	level(powerOn           ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
-	level(homeing           ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
-	level(axesHomed         ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
-	level(parking           ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
-	level(parked            ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false) });
-	level(systemReady       ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
-	level(autoMoving        ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
-	level(mouseTeaching     ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
-	level(joystickTeaching  ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ) });
+	level(off               ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false), set(led, false) });
+	level(swInitializing    ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false), set(led, false) });
+	level(swInitialized     ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false), set(led, false) });
+	level(emergency         ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false), set(led, true ) });
+	level(resetingEmergency ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false), set(led, true ) });
+//	level(waitingForApproval).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false), set(led, false) });
+	level(controlStopping   ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false), set(led, false) });
+	level(controlStarting   ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false), set(led, false) });
+	level(systemOn          ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false), set(led, false) });
+	level(poweringDown      ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false), set(led, false) });
+	level(poweringUp        ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ), set(led, false) });
+	level(powerOn           ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ), set(led, false) });
+	level(homeing           ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ), set(led, false) });
+	level(axesHomed         ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ), set(led, false) });
+	level(parking           ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ), set(led, false) });
+	level(parked            ).setOutputActions({ set(enable0, false), set(enable1, false), set(enable2, false), set(enable3, false), set(led, false) });
+	level(systemReady       ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ), set(led, false) });
+	level(autoMoving        ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ), set(led, false) });
+	level(mouseTeaching     ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ), set(led, false) });
+	level(joystickTeaching  ).setOutputActions({ set(enable0, true ), set(enable1, true ), set(enable2, true ), set(enable3, true ), set(led, false) });
 
 	// Define and add level functions
 	level(off).setLevelAction([&](SafetyContext* privateContext) {

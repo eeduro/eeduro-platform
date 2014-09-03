@@ -58,6 +58,7 @@ Board::Board() :
 		hal.addPeripheralInput(&position[i]);
 		hal.addPeripheralOutput(&enable[i]);
 		hal.addPeripheralOutput(&voltage[i]);
+		hal.addPeripheralOutput(&led_output[i]);
 	}
 }
 

@@ -111,6 +111,13 @@ namespace eeduro {
 			{ "voltage2", _axis[2].voltage },
 			{ "voltage3", _axis[3].voltage }
 		};
+
+		eeduro::hal::Output<bool> led_output[NOF_AXIS] = {
+			{ "led0", led[0] },
+			{ "led1", led[1] },
+			{ "led2", led[2] },
+			{ "led3", led[3] }
+		};
 	};
 }
 

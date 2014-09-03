@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
 	while(running) {
 // 		std::cout << "TCP z: " << controlSys.pathPlanner.getPosOut().getSignal().getValue()[2] << std::endl;
 //		std::cout << controlSys.joystick.getOut().getSignal().getValue() << std::endl;
-		std::cout << controlSys.inputSwitch.getOut().getSignal().getValue() << std::endl;
+// 		std::cout << controlSys.inputSwitch.getOut().getSignal().getValue() << std::endl;
 // 		if(controlSys.axisHomed()) {
 // 			controlSys.goToPos(0, 0, z[i], 0.2);
 // 			controlSys.forceLimitation.enable();

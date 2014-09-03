@@ -12,6 +12,7 @@
 #include <eeros/control/Saturation.hpp>
 #include <eeros/control/XBoxInput.hpp>
 #include <eeros/control/MouseInput.hpp>
+#include <eeros/control/PeripheralOutput.hpp>
 #include "Kinematic.hpp"
 #include "Jacobian.hpp"
 #include "DirectKinematic.hpp"

@@ -69,12 +69,14 @@ namespace eeduro {
 		public:
 			DeltaSafetyProperties(ControlSystem* cs);
 			
+			
 			// criticcal outputs
 			eeros::hal::PeripheralOutput<bool>* power;
 			eeros::hal::PeripheralOutput<bool>* enable0;
 			eeros::hal::PeripheralOutput<bool>* enable1;
 			eeros::hal::PeripheralOutput<bool>* enable2;
 			eeros::hal::PeripheralOutput<bool>* enable3;
+			eeros::hal::PeripheralOutput<bool>* led;
 			
 			// criticcal inputs
 			eeros::hal::PeripheralInput<bool>* emergencyStop;
