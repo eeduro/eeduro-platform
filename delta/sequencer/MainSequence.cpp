@@ -2,6 +2,8 @@
 #include "../safety/DeltaSafetyProperties.hpp"
 #include <unistd.h>
 
+#include <queue>
+
 using namespace eeduro::delta;
 using namespace eeros::sequencer;
 using namespace eeros::safety;
@@ -17,8 +19,7 @@ MainSequence::MainSequence(Sequencer* sequencer, ControlSystem* controlSys, Safe
 }
 
 void MainSequence::run() {
-	const AxisVector start_position{ 0, 0, -0.03, 0 };
-	const AxisVector stop_position{ 0, 0, -0.04, 0 };
+	const AxisVector start_position{ 0, 0, -0.03, 0.5 };
 	
 	controlSys->pathPlanner.setInitPos(start_position);
 	
@@ -41,32 +42,44 @@ void MainSequence::run() {
 		
 		usleep(1000000);
 		controlSys->board.button_latch[0].reset();
-		int i = 0;
 		while(controlSys->board.button_latch[0].get() != true) {
 			usleep(100000);
 			yield();
-
-			if (i % (index + 1) == 0) {
-				controlSys->board.led[0] ^= true;
-			}
-			i++;
 		}
 		
 		index++;
 		if (index > 2) index = 0;
 		if (index == 0) {
 			log.trace() << "switching to predifined path";
+			
+			std::queue<AxisVector> p;
+			p.push(start_position);
+			p.push({  0.00,  0.00, -0.06, 0.5});
+			p.push({  0.02,  0.00, -0.06, 0.5});
+			p.push({  0.02,  0.02, -0.06, 0.5});
+			p.push({ -0.02,  0.02, -0.06, 0.5});
+			p.push({ -0.02, -0.02, -0.06, 0.5});
+			p.push({  0.02, -0.02, -0.06, 0.5});
+			p.push({  0.02,  0.02, -0.06, 0.5});
+			p.push({ -0.02,  0.02, -0.06, 0.5});
+			p.push({ -0.02, -0.02, -0.06, 0.5});
+			p.push({  0.02, -0.02, -0.06, 0.5});
+			p.push({  0.02,  0.02, -0.06, 0.5});
+			p.push({ -0.02,  0.02, -0.06, 0.5});
+			p.push({ -0.02, -0.02, -0.06, 0.5});
+			p.push({  0.02, -0.02, -0.06, 0.5});
+			p.push({  0.02,  0.02, -0.06, 0.5});
+			p.push(start_position);
+			
 			controlSys->pathPlanner.setInitPos(controlSys->inputSwitch.getOut().getSignal().getValue());
  			controlSys->inputSwitch.switchToInput(0);
-			controlSys->pathPlanner.gotoPoint(start_position);
-			while(!controlSys->pathPlanner.posReached()) {
-				usleep(100000);
-				yield();
-			}
-			controlSys->pathPlanner.gotoPoint(stop_position);
-			while(!controlSys->pathPlanner.posReached()) {
-				usleep(100000);
-				yield();
+			while(p.size() > 0) {
+				controlSys->pathPlanner.gotoPoint(p.front());
+				while(!controlSys->pathPlanner.posReached()) {
+					usleep(100000);
+					yield();
+				}
+				p.pop();
 			}
 		}
 		if (index == 1) {
