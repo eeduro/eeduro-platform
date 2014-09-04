@@ -21,7 +21,6 @@ ControlSystem::ControlSystem() :
 	inputSwitch(1),
 	posController(kp),
 	speedController(kd),
-	inertia(mtcp),
 	jacobi(jacobian),
 	motorModel(kM, RA),
 	voltageSwitch(1),
@@ -51,7 +50,9 @@ ControlSystem::ControlSystem() :
 	speedController.getIn().connect(speedLimitation.getOut());
 	accSum.getIn(0).connect(speedController.getOut());
 // 	accSum.getIn(1).connect(spathPlanner.getAccOut());
-	inertia.getIn().connect(accSum.getOut());
+	inertia.getAccelerationInput().connect(accSum.getOut());
+	inertia.getJointPosInput().connect(angleGear.getOut());
+	inertia.getTcpPosInput().connect(directKin.getOut());
 	forceLimitation.getIn().connect(inertia.getOut());
 	jacobi.getForceInput().connect(forceLimitation.getOut());
 	jacobi.getJointPosInput().connect(angleGear.getOut());

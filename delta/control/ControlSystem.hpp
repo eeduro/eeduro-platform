@@ -17,6 +17,7 @@
 #include "Jacobian.hpp"
 #include "DirectKinematic.hpp"
 #include "Jacobi.hpp"
+#include "Inertia.hpp"
 #include "MotorModel.hpp"
 #include "PathPlanner.hpp"
 #include "constants.hpp"
@@ -70,7 +71,7 @@ namespace eeduro {
 			eeros::control::Gain<AxisVector>					speedController;
 			eeros::control::Sum<2, AxisVector>					accSum;
 			
-			eeros::control::Gain<AxisVector>					inertia;
+			eeduro::delta::Inertia								inertia;
 			eeros::control::Saturation<AxisVector>				forceLimitation;
 			eeduro::delta::Jacobi								jacobi;
 			

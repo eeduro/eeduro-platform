@@ -16,7 +16,7 @@ namespace eeduro {
 		constexpr double kM0816 = 8.98e-3; // [Nm/A]
 		constexpr double RA1524 = 19.8; // [Ohm]
 		constexpr double RA0816 = 106.4; // [Ohm]
-		constexpr double jred = 0.000515154 * 5; // [kgm^2]
+		constexpr double jred = 0.000515154; // [kgm^2]
 		constexpr double mtcp = 77.2e-3; // [kg]
 		
 		// Controller parameters
