@@ -40,7 +40,7 @@ void MainSequence::run() {
 			log.trace() << "Press the blue button switch to predifined path";
 		}
 		
-		usleep(1000000);
+		usleep(200000);
 		controlSys->board.button_latch[0].reset();
 		while(controlSys->board.button_latch[0].get() != true) {
 			usleep(100000);
