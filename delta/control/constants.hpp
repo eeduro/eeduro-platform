@@ -30,7 +30,7 @@ namespace eeduro {
 		constexpr double q3InitVoltage = 1.5; //[V]
 		
 		constexpr double q012SafeMin = -2.0 * i1524;
-		constexpr double q012SafeMax = -0.04 * i1524;
+		constexpr double q012SafeMax = 0.4 * i1524;
 		constexpr double q3SafeMin = 0.0 * i0816;
 		constexpr double q3SafeMax = 4.0 * i0816;
 		
@@ -38,6 +38,9 @@ namespace eeduro {
 		constexpr double tcpReady_y = 0;
 		constexpr double tcpReady_z = -0.01;
 		constexpr double tcpReady_phi = 1.0;
+		
+		constexpr double q012homingOffset = 25.5 * 3.14159 / 180.0 * i1524;
+		constexpr double q3homingOffset = 1.5 * i0816;
 		
 		constexpr double q012gearTorqueLimit = 0.3;
 		constexpr double q3gearTorqueLimit = 0.025;

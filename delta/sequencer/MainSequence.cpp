@@ -19,7 +19,7 @@ MainSequence::MainSequence(Sequencer* sequencer, ControlSystem* controlSys, Safe
 }
 
 void MainSequence::run() {
-	const AxisVector start_position{ 0, 0, -0.03, 0.5 };
+	const AxisVector start_position{ 0, 0, -0.015, 0 };
 	
 	controlSys->pathPlanner.setInitPos(start_position);
 	
@@ -53,22 +53,23 @@ void MainSequence::run() {
 			log.trace() << "switching to predifined path";
 			
 			std::queue<AxisVector> p;
+			double z = -0.025;
 			p.push(start_position);
-			p.push({  0.00,  0.00, -0.06, 0.5});
-			p.push({  0.02,  0.00, -0.06, 0.5});
-			p.push({  0.02,  0.02, -0.06, 0.5});
-			p.push({ -0.02,  0.02, -0.06, 0.5});
-			p.push({ -0.02, -0.02, -0.06, 0.5});
-			p.push({  0.02, -0.02, -0.06, 0.5});
-			p.push({  0.02,  0.02, -0.06, 0.5});
-			p.push({ -0.02,  0.02, -0.06, 0.5});
-			p.push({ -0.02, -0.02, -0.06, 0.5});
-			p.push({  0.02, -0.02, -0.06, 0.5});
-			p.push({  0.02,  0.02, -0.06, 0.5});
-			p.push({ -0.02,  0.02, -0.06, 0.5});
-			p.push({ -0.02, -0.02, -0.06, 0.5});
-			p.push({  0.02, -0.02, -0.06, 0.5});
-			p.push({  0.02,  0.02, -0.06, 0.5});
+			p.push({  0.00,  0.00, z, 0});
+			p.push({  0.02,  0.00, z, 0});
+			p.push({  0.02,  0.02, z, 0});
+			p.push({ -0.02,  0.02, z, 0});
+			p.push({ -0.02, -0.02, z, 0});
+			p.push({  0.02, -0.02, z, 0});
+			p.push({  0.02,  0.02, z, 0});
+			p.push({ -0.02,  0.02, z, 0});
+			p.push({ -0.02, -0.02, z, 0});
+			p.push({  0.02, -0.02, z, 0});
+			p.push({  0.02,  0.02, z, 0});
+			p.push({ -0.02,  0.02, z, 0});
+			p.push({ -0.02, -0.02, z, 0});
+			p.push({  0.02, -0.02, z, 0});
+			p.push({  0.02,  0.02, z, 0});
 			p.push(start_position);
 			
 			controlSys->pathPlanner.setInitPos(controlSys->inputSwitch.getOut().getSignal().getValue());

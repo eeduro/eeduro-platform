@@ -4,6 +4,8 @@
 #include <eeros/core/EEROSException.hpp>
 #include <unistd.h>
 
+#include <iostream>
+
 using namespace eeduro::delta;
 using namespace eeros;
 using namespace eeros::control;
@@ -115,10 +117,8 @@ void ControlSystem::setVoltageForInitializing(AxisVector u) {
 
 bool ControlSystem::switchToPosControl() {
 	if(homed || !allAxisStopped()) return false;
-	board.resetPositions();
+	board.resetPositions(q012homingOffset, q012homingOffset, q012homingOffset, q3homingOffset);	
 	setVoltageForInitializing({0, 0, 0, 0});
-	voltageSwitch.switchToInput(0);
-// 	pathPlanner.setInitPos({0, 0, 0, 0});
 	homed = true;
 	return true;
 }

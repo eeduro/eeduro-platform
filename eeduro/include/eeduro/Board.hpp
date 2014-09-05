@@ -34,7 +34,7 @@ namespace eeduro {
 		virtual void setReset(int axisPair, bool value);
 
 		virtual void limit(double voltage);
-		virtual void resetPositions();
+		virtual void resetPositions(double q0 = 0, double q1 = 0, double q2 = 0, double q3 = 0);
 		
 		bool transmission_ok;
 		bool power_out[2];
@@ -77,6 +77,7 @@ namespace eeduro {
 		} _axis[NOF_AXIS];
 		
 		bool clearPosition[NOF_AXIS];
+		double initPosition[NOF_AXIS];
 		
 		eeros::control::Signal<eeros::math::Matrix<NOF_AXIS, 1, double>> prevPos;
 		

@@ -46,6 +46,7 @@ Board::Board() :
 		_axis[i].voltage = 0;
 		
 		clearPosition[i] = false;
+		initPosition[i] = 0;
 	}
 
 //	resetEmergency();
@@ -194,7 +195,7 @@ void Board::run() {
 			_axis[a].position = (read_data & 0xffff);
 			int16_t delta = (_axis[a].position - old);
 			if(clearPosition[a]) {
-				axis[a].position = 0;
+				axis[a].position = initPosition[a];
 				axis[a].speed = 0;
 				clearPosition[a] = false; // set back
 			}
@@ -264,7 +265,11 @@ void Board::limit(double voltage) {
 // 	emergency_latch.state = false;
 // }
 
-void Board::resetPositions() {
+void Board::resetPositions(double q0, double q1, double q2, double q3) {
+	initPosition[0] = q0;
+	initPosition[1] = q1;
+	initPosition[2] = q2;
+	initPosition[3] = q3;
 	for(int i = 0; i < NOF_AXIS; i++) {
 		clearPosition[i] = true;
 	}

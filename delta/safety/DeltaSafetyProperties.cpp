@@ -193,16 +193,13 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 		static int count = 0;
 		if(first) {
 			first = false;
-			controlSys->goToPos(tcpReady_x, tcpReady_y, tcpReady_z, tcpReady_phi);
-			std::cout << "tcp = " << controlSys->getTcpPos() << std::endl;
+			controlSys->setVoltageForInitializing({-2, -2, -2, -2});
 		}
 		else {
-			AxisVector tcp = controlSys->getTcpPos();
 			count++;
-			if(tcp(2) <= tcpReady_z) { // TODO
-// 			if(controlSys->pathPlanner.posReached()) {
- 				std::cout << "FINISHED: tcp = " << tcp << ", count = " << count << std::endl;
-// 				controlSys->pathPlanner.setInitPos(controlSys->getTcpPos());
+			if(count > static_cast<unsigned int>(0.3 / dt)) {
+				controlSys->setVoltageForInitializing({0, 0, 0, 0});
+				controlSys->voltageSwitch.switchToInput(0);
 				privateContext->triggerEvent(doSystemReady);
 				
 			}
