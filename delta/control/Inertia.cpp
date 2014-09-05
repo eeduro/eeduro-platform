@@ -30,7 +30,7 @@ void Inertia::run() {
 			Matrix<3,3> M = tcpMass + inverseJacobianTransposed * motorInertia * inverseJacobian;
 			Vector3 F = M * accelerationIn.getSignal().getValue().getSubMatrix<3,1>(0, 0);
 
-			forceOut.getSignal().setValue(Vector4(F[0], F[1], F[2], 0));
+			forceOut.getSignal().setValue(Vector4(F[0], F[1], F[2], mtcp * accelerationIn.getSignal().getValue()[3]));
 			forceOut.getSignal().setTimestamp(accelerationIn.getSignal().getTimestamp());
 			
 			return;
