@@ -5,7 +5,7 @@
 using namespace eeduro::delta;
 using namespace eeros::math;
 
-Jacobian::Jacobian() { }
+Jacobian::Jacobian(eeros::math::Vector3 offset) : offset(offset) { }
 
 Jacobian::~Jacobian() { }
 
@@ -28,7 +28,8 @@ Vector3 Jacobian::getDrivetorque(const Vector3& F_tcp) {
 	return jacobi.transpose() * F_tcp;
 }
 
-bool Jacobian::calculate(const Vector3& q, const Vector3& tcp) {
+bool Jacobian::calculate(const Vector3& q, const Vector3& tcp_offset) {
+	Vector3 tcp = (tcp_offset + offset);
 	Vector3 temp1;
 	temp1(0) = Kinematic::r+Kinematic::length_A*cos(q(0));
 	temp1(1) = 0;

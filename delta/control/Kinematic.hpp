@@ -25,6 +25,8 @@ namespace eeduro {
 			* @param tcp	TCP values ​​in the Cartesian coordinate system [m]
 			*/
 			virtual bool inverse(const eeros::math::Vector3& tcp, eeros::math::Vector3& q);
+			
+			virtual const eeros::math::Vector3& get_offset();
 
 			static const double q_min;
 			static const double q_max;

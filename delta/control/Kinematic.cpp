@@ -109,9 +109,9 @@ bool Kinematic::forward(const Vector3& q, Vector3& tcp) {
 	else {
 		// take only the solution with the lower value for Z
 		double poseZ = (-b - sqrt(d))/(2*a);
-		tcp(0) = a1*poseZ + b1+offset(0);
-		tcp(1) = a2*poseZ + b2+offset(1);
-		tcp(2) = poseZ-0.004-offset(2); 											// TCP is lower surface: -0.004
+		tcp(0) = a1*poseZ + b1 - offset(0);
+		tcp(1) = a2*poseZ + b2 - offset(1);
+		tcp(2) = poseZ - offset(2);
 		return true;
 	}
 }
@@ -119,9 +119,9 @@ bool Kinematic::forward(const Vector3& q, Vector3& tcp) {
 bool Kinematic::inverse(const Vector3& tcp, Vector3& q) {
 	Vector3 tempTCP;
 
-	tempTCP(0) = tcp(0)- offset(0);
-	tempTCP(1) = tcp(1)- offset(1);
-	tempTCP(2) = tcp(2)+0.004+offset(2);
+	tempTCP(0) = tcp(0) + offset(0);
+	tempTCP(1) = tcp(1) + offset(1);
+	tempTCP(2) = tcp(2) + offset(2);
 
 	Vector3 tcp_1 = rotz1*tempTCP;
 	Vector3 tcp_2 = rotz3*tempTCP;                  							   // invers rotz_2
@@ -209,4 +209,8 @@ bool Kinematic::inverse(const Vector3& tcp, Vector3& q) {
 			}
 		}
 	}
+}
+
+const eeros::math::Vector3& Kinematic::get_offset() {
+	return offset;
 }

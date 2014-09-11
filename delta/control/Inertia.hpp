@@ -11,7 +11,7 @@ namespace eeduro {
 	namespace delta {
 		class Inertia : public eeros::control::Block {
 		public:
-			Inertia();
+			Inertia(Jacobian &jacobi);
 			
 			virtual void run();
 			
@@ -27,7 +27,7 @@ namespace eeduro {
 			eeros::control::Output<AxisVector> forceOut;
 			eeros::math::Matrix<3,3> tcpMass;
 			eeros::math::Matrix<3,3> motorInertia;
-			Jacobian jacobi;
+			Jacobian &jacobi;
 		};
 	}
 }

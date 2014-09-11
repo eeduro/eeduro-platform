@@ -7,7 +7,7 @@ namespace eeduro {
 	namespace delta {
 		class Jacobian {
 		public:
-			Jacobian();
+			Jacobian(eeros::math::Vector3 offset);
 			virtual ~Jacobian();
 			
 			/** Calculate jacobi Matrix of the delta robot.
@@ -42,6 +42,7 @@ namespace eeduro {
 			
 		private:
 			eeros::math::Matrix<3,3> jacobi;
+			eeros::math::Vector3 offset;
 		};
 	}
 }

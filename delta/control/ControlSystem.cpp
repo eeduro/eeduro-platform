@@ -15,6 +15,8 @@ ControlSystem::ControlSystem() :
 	kM(kM1524, kM1524, kM1524, kM0816),
 	RA(RA1524, RA1524, RA1524, RA0816),
 	
+	jacobian(kinematic.get_offset()),
+	
 	homed(false),
 	
 	joystick("/dev/input/js0"),
@@ -23,6 +25,7 @@ ControlSystem::ControlSystem() :
 	inputSwitch(1),
 	posController(kp),
 	speedController(kd),
+	inertia(jacobian),
 	jacobi(jacobian),
 	motorModel(kM, RA),
 	voltageSwitch(1),

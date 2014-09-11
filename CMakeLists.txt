@@ -24,6 +24,9 @@ add_subdirectory(eeduro)
 # EEDURO utilities
 add_subdirectory(util)
 
+# EEDURO tests
+add_subdirectory(test)
+
 # EEDURO Robots
 add_subdirectory(delta)
 add_subdirectory(omni)

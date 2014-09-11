@@ -22,14 +22,14 @@ namespace eeduro {
 		// Controller parameters
 		constexpr double dt = 0.001; // [s]
 		constexpr double D = 0.7;
-		constexpr double w0 = 2 * pi * 20; // = 2 * pi * 1 / (2 * D * dt * pi);
+		constexpr double w0 = 2 * pi * 30; // = 2 * pi * 1 / (2 * D * dt * pi);
 		constexpr double kp = w0 / (2 * D);
 		constexpr double kd = 2 * D * w0;
 		
 		constexpr double q012InitVoltage = 2.5; //[V]
 		constexpr double q3InitVoltage = 1.5; //[V]
 		
-		constexpr double q012SafeMin = -1.8 * i1524;
+		constexpr double q012SafeMin = -1.74 * i1524;
 		constexpr double q012SafeMax = 0.4 * i1524;
 		constexpr double q3SafeMin = -1.479 * i0816;
 		constexpr double q3SafeMax = 1.479 * i0816;
