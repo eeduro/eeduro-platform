@@ -43,7 +43,7 @@ Kinematic::Kinematic() {
 
 Kinematic::~Kinematic() { }
 
-bool Kinematic::forward(const Vector3& q, Vector3& tcp) {
+bool Kinematic::forward(const Vector3 q, Vector3& tcp) {
 	Vector3 temp1;
 	temp1(0) = r + length_A * cos(q(0));
 	temp1(1) = 0;
@@ -116,7 +116,7 @@ bool Kinematic::forward(const Vector3& q, Vector3& tcp) {
 	}
 }
 
-bool Kinematic::inverse(const Vector3& tcp, Vector3& q) {
+bool Kinematic::inverse(const Vector3 tcp, Vector3& q) {
 	Vector3 tempTCP;
 
 	tempTCP(0) = tcp(0) + offset(0);

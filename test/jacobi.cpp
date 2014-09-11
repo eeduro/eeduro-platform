@@ -1,11 +1,11 @@
 #include <iostream>
-using namespace std;
-
-#include "Kinematic.hpp"
-#include "Jacobian.hpp"
-using namespace eeduro::delta;
-
 #include <eeros/math/Matrix.hpp>
+#include "../delta/control/Kinematic.hpp"
+#include "../delta/control/Jacobian.hpp"
+#include "../delta/control/NumericalJacobian.hpp"
+
+using namespace std;
+using namespace eeduro::delta;
 using namespace eeros::math;
 
 double diff(const Vector3 &a, const Vector3 &b)
@@ -35,12 +35,13 @@ int main(int argc, char *argv[])
 	double qmin = -0.4;
 	double qmax = 0.4;
 	
-	int n = 100;
+	int n = 50;
 	double dq = (qmax - qmin) / (double)n;
 	
 	
 	Kinematic k;
 	Jacobian j(k.get_offset());
+	NumericalJacobian<3,3> num(k);
 	
 	try
 	{
@@ -93,6 +94,56 @@ int main(int argc, char *argv[])
 					
 					Matrix<3,3> J = j.getJacobian();
 					
+					if (!num.calculate(q))
+					{
+						cout << "FAIL:" << endl;
+						cout << "q: " << q << endl;
+						cout << "tcp: " << x << endl;
+						throw 3;
+					}
+					
+					Matrix<3,3> Jnum = num.getJacobian();
+					Matrix<3,3> dJ = (Jnum - J);
+					
+					Matrix<3,1> one;
+					one = 1;
+					
+					Matrix<3,1> one1 = (!Jnum) * (J * one);
+					Matrix<3,1> one2 = (!J) * (Jnum * one);
+					
+					d = diff(one1, one2);
+					
+					if (d > 0.3) {
+						cout << "FAIL:" << endl;
+						cout << "q: " << q << endl;
+						cout << "d: " << d << endl;
+						cout << "J: " << J << endl;
+						cout << "Jnum: " << Jnum << endl;
+						cout << "dJ: " << dJ << endl;
+						cout << "one1: " << one1 << endl;
+						cout << "one2: " << one2 << endl;
+						throw 4;
+					}
+					
+					double d1 = diff(J.getSubMatrix<3,1>(0,0), Jnum.getSubMatrix<3,1>(0,0));
+					double d2 = diff(J.getSubMatrix<3,1>(0,1), Jnum.getSubMatrix<3,1>(0,1));
+					double d3 = diff(J.getSubMatrix<3,1>(0,2), Jnum.getSubMatrix<3,1>(0,2));
+					
+					d = d1;
+					d += d2;
+					d += d3;
+					
+					if (d > 0.008) {
+						cout << "FAIL:" << endl;
+						cout << "q: " << q << endl;
+						cout << "d: " << d << endl;
+						cout << "J: " << J << endl;
+						cout << "Jnum: " << Jnum << endl;
+						cout << "dJ: " << dJ << endl;
+						throw 5;
+					}
+					
+					
 					Vector3 qdot((q - qlast) / 0.001);
 					Vector3 xdot((x - xlast) / 0.001);
 					
@@ -106,21 +157,20 @@ int main(int argc, char *argv[])
 					double s = acos((xdot.transpose() * xdot_calc) / xnorm / calcnorm) * 180.0 / 3.14159;
 					if (s < 0) s = -s;
 					
-// 					if (d > xnorm * 0.01)
-					if (s > 1)
-					{
-						cout << "FAIL:\t" << endl;
-						cout << "q:\t" << q << endl;
-						cout << "tcp:\t" << x << endl;
-						cout << "qdot:\t" << qdot << endl;
-						cout << "xdot:\t" << xdot << endl;
-						cout << "xdot_calc:\t" << xdot_calc << endl;
-						cout << "xnorm:\t" << xnorm << endl;
-						cout << "d:\t" << d << endl;
-						cout << "nd:\t" << nd << endl;
-						cout << "s:\t" << s << endl;
-						throw 3;
-					}
+// 					if (s > 10 || d > xnorm * 0.4)
+// 					{
+// 						cout << "FAIL:\t" << endl;
+// 						cout << "q:\t" << q << endl;
+// 						cout << "tcp:\t" << x << endl;
+// 						cout << "qdot:\t" << qdot << endl;
+// 						cout << "xdot:\t" << xdot << endl;
+// 						cout << "xdot_calc:\t" << xdot_calc << endl;
+// 						cout << "xnorm:\t" << xnorm << endl;
+// 						cout << "d:\t" << d << endl;
+// 						cout << "nd:\t" << nd << endl;
+// 						cout << "s:\t" << s << endl;
+// 						throw 6;
+// 					}
 					
 					qlast = q;
 					xlast = x;

@@ -2,9 +2,11 @@
 #define CH_NTB_EEDURO_DELTA_KINEMATIC_HPP
 #include <eeros/math/Matrix.hpp>
 
+#include "Kinematics.hpp"
+
 namespace eeduro {
 	namespace delta {
-		class Kinematic {
+		class Kinematic : public Kinematics<3,3> {
 		public:
 			/** A new kinematic Delta-Robot.
 			* @param offsetv	Offset TCP for example, the length of the magnet in the z-axis
@@ -18,13 +20,13 @@ namespace eeduro {
 			* @param q	joint coordinates [rad]
 			* @param tcp	TCP values ​​in the Cartesian coordinate system [m]
 			*/
-			virtual bool forward(const eeros::math::Vector3& q, eeros::math::Vector3& tcp);
+			virtual bool forward(const eeros::math::Vector3 q, eeros::math::Vector3& tcp);
 
 			/** Inverse kinematics of the delta robot.
 			* @param q	joint coordinates [rad]
 			* @param tcp	TCP values ​​in the Cartesian coordinate system [m]
 			*/
-			virtual bool inverse(const eeros::math::Vector3& tcp, eeros::math::Vector3& q);
+			virtual bool inverse(const eeros::math::Vector3 tcp, eeros::math::Vector3& q);
 			
 			virtual const eeros::math::Vector3& get_offset();
 
