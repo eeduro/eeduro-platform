@@ -31,8 +31,8 @@ int main(int argc, char *argv[])
 {
 	cout << "jacobi test started" << endl;
 	
-// 	double qmin = -1.74;
-	double qmin = -0.4;
+ 	double qmin = -1.74;
+// 	double qmin = -0.4;
 	double qmax = 0.4;
 	
 	int n = 50;
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 	
 	Kinematic k;
 	Jacobian j(k.get_offset());
-	NumericalJacobian<3,3> num(k);
+	NumericalJacobian<3,3> num(k, 0.000001);
 	
 	try
 	{
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
 					
 					d = diff(one1, one2);
 					
-					if (d > 0.3) {
+					if (d > 0.001) {
 						cout << "FAIL:" << endl;
 						cout << "q: " << q << endl;
 						cout << "d: " << d << endl;
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 					d += d2;
 					d += d3;
 					
-					if (d > 0.008) {
+					if (d > 0.001) {
 						cout << "FAIL:" << endl;
 						cout << "q: " << q << endl;
 						cout << "d: " << d << endl;
@@ -143,21 +143,22 @@ int main(int argc, char *argv[])
 						throw 5;
 					}
 					
+// 					J = Jnum;
 					
-					Vector3 qdot((q - qlast) / 0.001);
-					Vector3 xdot((x - xlast) / 0.001);
-					
-					Vector3 xdot_calc = J * qdot;
-					
-					d = diff(xdot, xdot_calc);
-
-					double xnorm = norm(xdot);
-					double calcnorm = norm(xdot_calc);
-					double nd = (xnorm - calcnorm);
-					double s = acos((xdot.transpose() * xdot_calc) / xnorm / calcnorm) * 180.0 / 3.14159;
-					if (s < 0) s = -s;
-					
-// 					if (s > 10 || d > xnorm * 0.4)
+// 					Vector3 qdot((q - qlast) / 0.001);
+// 					Vector3 xdot((x - xlast) / 0.001);
+// 					
+// 					Vector3 xdot_calc = J * qdot;
+// 					
+// 					d = diff(xdot, xdot_calc);
+// 
+// 					double xnorm = norm(xdot);
+// 					double calcnorm = norm(xdot_calc);
+// 					double nd = (xnorm - calcnorm);
+// 					double s = acos((xdot.transpose() * xdot_calc) / xnorm / calcnorm) * 180.0 / 3.14159;
+// 					if (s < 0) s = -s;
+// 					
+// 					if (s > 1 || d > xnorm * 0.4)
 // 					{
 // 						cout << "FAIL:\t" << endl;
 // 						cout << "q:\t" << q << endl;

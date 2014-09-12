@@ -8,10 +8,11 @@
 namespace eeduro {
 	namespace delta {
 
-		template < int M, int N >
+		template < int M, int N, typename T = double >
 		class NumericalJacobian {
 		public:
-			NumericalJacobian(Kinematics<M,N> &kinematics) : kinematics(kinematics) { }
+			NumericalJacobian(Kinematics<M,N> &kinematics, T delta) :
+				kinematics(kinematics), delta(delta) { }
 
 			virtual bool calculate(const eeros::math::Matrix<N>& q) {
 				eeros::math::Matrix<M> tcp;
@@ -23,7 +24,7 @@ namespace eeduro {
 				
 				for (int i = 0; i < N; i++) {
 					eeros::math::Matrix<N> q_new(q);
-					q_new[i] += 0.1;
+					q_new[i] += delta;
 					
 					eeros::math::Matrix<M> tcp_new;
 					if (!kinematics.forward(q_new, tcp_new))
@@ -51,6 +52,7 @@ namespace eeduro {
 		private:
 			eeros::math::Matrix<M,N> jacobian;
 			Kinematics<M,N> &kinematics;
+			T delta;
 		};
 	}
 }
