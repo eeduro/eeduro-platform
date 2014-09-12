@@ -31,17 +31,20 @@ int main(int argc, char *argv[])
 {
 	cout << "jacobi test started" << endl;
 	
- 	double qmin = -1.74;
-// 	double qmin = -0.4;
+//  	double qmin = -1.74;
+	double qmin = -0.4;
 	double qmax = 0.4;
 	
-	int n = 50;
+	int n = 200;
 	double dq = (qmax - qmin) / (double)n;
-	
+	cout << "dq: " << dq << endl;
 	
 	Kinematic k;
 	Jacobian j(k.get_offset());
 	NumericalJacobian<3,3> num(k, 0.000001);
+	
+	double max_angle = 0;
+	double max_amplitude = 0;
 	
 	try
 	{
@@ -61,6 +64,13 @@ int main(int argc, char *argv[])
 					{
 						cout << "q: " << q << endl;
 						throw 0;
+					}
+					
+					if (i2 == 0)
+					{
+						qlast = q;
+						xlast = x;
+						continue;
 					}
 					
 					Vector3 qback;
@@ -145,20 +155,25 @@ int main(int argc, char *argv[])
 					
 // 					J = Jnum;
 					
-// 					Vector3 qdot((q - qlast) / 0.001);
-// 					Vector3 xdot((x - xlast) / 0.001);
-// 					
-// 					Vector3 xdot_calc = J * qdot;
-// 					
-// 					d = diff(xdot, xdot_calc);
-// 
-// 					double xnorm = norm(xdot);
-// 					double calcnorm = norm(xdot_calc);
-// 					double nd = (xnorm - calcnorm);
-// 					double s = acos((xdot.transpose() * xdot_calc) / xnorm / calcnorm) * 180.0 / 3.14159;
-// 					if (s < 0) s = -s;
-// 					
-// 					if (s > 1 || d > xnorm * 0.4)
+					Vector3 qdot((q - qlast) / 0.001);
+					Vector3 xdot((x - xlast) / 0.001);
+					
+					Vector3 xdot_calc = J * qdot;
+					
+					d = diff(xdot, xdot_calc);
+
+					double xnorm = norm(xdot);
+					double calcnorm = norm(xdot_calc);
+					double nd = (xnorm - calcnorm);
+					double s = acos((xdot.transpose() * xdot_calc) / xnorm / calcnorm) * 180.0 / 3.14159;
+					if (s < 0) s = -s;
+					
+					if (s > max_angle) max_angle = s;
+					
+					d = d / xnorm;
+					if (d > max_amplitude) max_amplitude = d;
+					
+// 					if (s > 1 || d > 0.01)
 // 					{
 // 						cout << "FAIL:\t" << endl;
 // 						cout << "q:\t" << q << endl;
@@ -176,8 +191,22 @@ int main(int argc, char *argv[])
 					qlast = q;
 					xlast = x;
 				}
+				
+				int percentage = (100 * (i0 * n + i1)) / (n*n);
+				if ((percentage % 10) == 0) {
+					static int last = -1;
+					if (last != percentage) {
+						last = percentage;
+						cout << percentage << " %" << endl;
+					}
+				}
 			}
 		}
+		
+		cout << "SUCCESS:" << endl;
+		cout << "   max. angle deviation:     " << max_angle << " rad" << endl;
+		cout << "   max. amplitude deviation: " << (max_amplitude * 100) << " %" << endl;
+		cout << "   points evaluated:         " << (n*n*n) << endl;
 	}
 	catch(int &ex)
 	{
