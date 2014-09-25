@@ -2,10 +2,12 @@
 #           Main cmake file for the delta robot           #
 ###########################################################
 
+set(EEDURO_ROOT ${PROJECT_SOURCE_DIR})
+
 project(eeduro-delta)
 
 macro(add_delta_sources)
-  file(RELATIVE_PATH _relPath "${CMAKE_SOURCE_DIR}/delta" "${CMAKE_CURRENT_SOURCE_DIR}")
+  file(RELATIVE_PATH _relPath "${EEDURO_ROOT}/delta" "${CMAKE_CURRENT_SOURCE_DIR}")
     foreach(_src ${ARGN})
         if(_relPath)
             list(APPEND DELTA_SRCS "${_relPath}/${_src}")
@@ -19,7 +21,7 @@ macro(add_delta_sources)
     endif()
 endmacro()
 
-include_directories(${CMAKE_SOURCE_DIR}/eeduro/include)
+include_directories(${EEDURO_ROOT}/eeduro/include)
 
 add_subdirectory(control)
 add_subdirectory(safety)
