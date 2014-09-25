@@ -64,27 +64,7 @@ int main(int argc, char* argv[]) {
 	MainSequence mainSequence(&sequencer, &controlSys, &safetySys);
 	sequencer.start(&mainSequence);
 	
-	// 	constexpr int nofpos = 6;
-// 	double x[nofpos] = {0.01, 0.01, -0.01, -0.01, 0.0, 0.0};
-// 	double y[nofpos] = {-0.01, 0.01, 0.01, -0.01, 0.0, 0.0};
-// 	double z[nofpos] = {-0.01, -0.02, -0.01, -0.05, -0.06, -0.05};
-// 	double phi[nofpos] = {0.1, 0.5, 0.1, 0.5, 0.1, 0.5};
-// 	int i = 0;
-// 	AxisVector limit = {0, 100, 100, 100};
-// 	controlSys.forceLimitation.setLimit(-limit, limit);
 	while(running && sequencer.getState() != state::terminated) {
-// 		std::cout << "TCP z: " << controlSys.pathPlanner.getPosOut().getSignal().getValue()[2] << std::endl;
-//		std::cout << controlSys.joystick.getOut().getSignal().getValue() << std::endl;
-// 		std::cout << controlSys.inputSwitch.getOut().getSignal().getValue() << std::endl;
-		std::cout << controlSys.inputSwitch.getOut().getSignal().getValue() << "  |  ";
-		std::cout << controlSys.directKin.getOut().getSignal().getValue() << "  |  ";
-		std::cout << controlSys.angleGear.getOut().getSignal().getValue() << std::endl;
-// 		if(controlSys.axisHomed()) {
-// 			controlSys.goToPos(0, 0, z[i], 0.2);
-// 			controlSys.forceLimitation.enable();
-// 			controlSys.goToPos(0, 0, -0.03, 0.5);
-// 			i = (i + 1) % nofpos;
-// 		}
 		usleep(1000000);
 	}
 	
