@@ -49,6 +49,12 @@ int main(int argc, char* argv[]) {
 	// initialize hardware
 	controlSys.initBoard();
 	
+	controlSys.mouse.j.on_button([&](int x, bool value) {
+		if (x == BTN_LEFT || x == BTN_RIGHT)
+			controlSys.board.power_out[0] = value;
+			controlSys.board.power_out[1] = value;
+	});
+	
 	// create safety system
 	DeltaSafetyProperties safetyProperties(&controlSys);
 	SafetySystem safetySys(safetyProperties, dt);
