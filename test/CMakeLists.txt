@@ -1,2 +1,7 @@
+include_directories(${PROJECT_SOURCE_DIR}/eeduro/include)
+
 add_executable(jacobi jacobi.cpp ../delta/control/Jacobian.cpp ../delta/control/Kinematic.cpp)
 target_link_libraries(jacobi eeros)
+
+add_executable(led led.cpp)
+target_link_libraries(led eeduro)
