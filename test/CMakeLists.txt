@@ -14,3 +14,6 @@ target_link_libraries(encoder eeduro)
 
 add_executable(magnet magnet.cpp)
 target_link_libraries(magnet eeduro)
+
+add_executable(voltage voltage.cpp)
+target_link_libraries(voltage eeduro eeros)
