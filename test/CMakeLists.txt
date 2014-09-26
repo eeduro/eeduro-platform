@@ -8,3 +8,6 @@ target_link_libraries(led eeduro)
 
 add_executable(button button.cpp)
 target_link_libraries(button eeduro)
+
+add_executable(encoder encoder.cpp)
+target_link_libraries(encoder eeduro)
