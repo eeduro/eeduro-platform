@@ -5,3 +5,6 @@ target_link_libraries(jacobi eeros)
 
 add_executable(led led.cpp)
 target_link_libraries(led eeduro)
+
+add_executable(button button.cpp)
+target_link_libraries(button eeduro)
