@@ -11,3 +11,6 @@ target_link_libraries(button eeduro)
 
 add_executable(encoder encoder.cpp)
 target_link_libraries(encoder eeduro)
+
+add_executable(magnet magnet.cpp)
+target_link_libraries(magnet eeduro)
