@@ -61,7 +61,7 @@ namespace eeduro {
 
 		double voltage_limit = 12;
 		const double max_voltage = 12;
-		const int encoder_ticks = 512 * 4;
+		const int encoder_ticks = 4096 * 4;
 		const double k = 2 * 3.1415926535897932384626433832795 / ( static_cast<double>(encoder_ticks) );
 
 		const uint8_t  mode;
