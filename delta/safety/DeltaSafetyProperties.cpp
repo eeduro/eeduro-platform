@@ -193,7 +193,7 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 		static int count = 0;
 		if(first) {
 			first = false;
-			controlSys->setVoltageForInitializing({-2, -2, -2, -2});
+			controlSys->setVoltageForInitializing({-2, -2, -2, -5});
 		}
 		else {
 			count++;

@@ -27,7 +27,7 @@ namespace eeduro {
 		constexpr double kd = 2 * D * w0;
 		
 		constexpr double q012InitVoltage = 2.5; //[V]
-		constexpr double q3InitVoltage = 1.5; //[V]
+		constexpr double q3InitVoltage = 3.5; //[V]
 		
 		constexpr double q012SafeMin = -1.74 * i1524;
 		constexpr double q012SafeMax = 0.4 * i1524;
