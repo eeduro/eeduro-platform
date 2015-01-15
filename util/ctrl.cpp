@@ -145,6 +145,7 @@ int main(int argc, char *argv[])
 			}
 		}
 
+		board.getIn().getSignal().setValue(v);
 		board.run();
 		board.close();
 		return 0;
