@@ -9,10 +9,12 @@ void help()
 	using namespace std;
 	
 	cout << "eeduro-ctrl [-hed ] [ v0 [ v1 [ v2 [ v3 ] ] ] ]" << endl;
-	cout << "            [ --button index   | -b index ]" << endl;
-	cout << "            [ --position axis  | -p axis  ]" << endl;
-	cout << "            [ --led-on index   | -l index ]" << endl;
-	cout << "            [ --led-off index  | -L index ]" << endl;
+	cout << "            [ --button index     | -b index ]" << endl;
+	cout << "            [ --position axis    | -p axis  ]" << endl;
+	cout << "            [ --led-on index     | -l index ]" << endl;
+	cout << "            [ --led-off index    | -L index ]" << endl;
+	cout << "            [ --output-on index  | -o index ]" << endl;
+	cout << "            [ --output-off index | -O index ]" << endl;
 }
 
 
@@ -33,16 +35,18 @@ int main(int argc, char *argv[])
 		board.setEnable(false);
 		board.getIn().getSignal().setValue(v);
 		
-		static const char* short_options = "-hedb:p:l:L:";
+		static const char* short_options = "-hedb:p:l:L:o:O:";
 		static struct option long_options[] =
 		{
-			{ "help",     no_argument,       nullptr, 'h' },
-			{ "enable",   no_argument,       nullptr, 'e' },
-			{ "disable",  no_argument,       nullptr, 'd' },
-			{ "button",   required_argument, nullptr, 'b' },
-			{ "position", required_argument, nullptr, 'p' },
-			{ "led-on",   required_argument, nullptr, 'l' },
-			{ "led-off",  required_argument, nullptr, 'L' },
+			{ "help",       no_argument,       nullptr, 'h' },
+			{ "enable",     no_argument,       nullptr, 'e' },
+			{ "disable",    no_argument,       nullptr, 'd' },
+			{ "button",     required_argument, nullptr, 'b' },
+			{ "position",   required_argument, nullptr, 'p' },
+			{ "led-on",     required_argument, nullptr, 'l' },
+			{ "led-off",    required_argument, nullptr, 'L' },
+			{ "output-on",  required_argument, nullptr, 'o' },
+			{ "output-off", required_argument, nullptr, 'O' },
 			{ 0, 0, 0, 0 }
 		};
 	
@@ -97,6 +101,23 @@ int main(int argc, char *argv[])
 						else
 						{
 							cerr << "LED index (" << led_index << ") out of range [0..3]" << endl;
+							board.close();
+							return 4;
+						}
+					}
+					break;
+					
+				case 'o':
+				case 'O':
+					{
+						int output_index = atoi(optarg);
+						if (output_index >= 0 && output_index <= 1)
+						{
+							board.power_out[output_index] = (r == 'o');
+						}
+						else
+						{
+							cerr << "output index (" << output_index << ") out of range [0..1]" << endl;
 							board.close();
 							return 4;
 						}
