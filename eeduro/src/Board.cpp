@@ -200,7 +200,8 @@ void Board::run() {
 				clearPosition[a] = false; // set back
 			}
 			else {
-				axis[a].position += k * delta;
+				axis[a].position += k[a] * delta;
+				
 				if(first) {
 					axis[a].speed = 0;
 					prevPos.setTimestamp(t);
