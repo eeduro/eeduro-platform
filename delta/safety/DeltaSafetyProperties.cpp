@@ -180,7 +180,7 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 		if(count == 0) {
 			controlSys->setVoltageForInitializing({q012InitVoltage, q012InitVoltage, q012InitVoltage, q3InitVoltage});
 		}
-		else if(count > static_cast<unsigned int>(1.0 / dt)) {
+		else if(count > static_cast<unsigned int>(2.0 / dt)) {
 			if(controlSys->switchToPosControl()) {
 				privateContext->triggerEvent(homeingDone);
 			}
@@ -193,7 +193,7 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 		static int count = 0;
 		if(first) {
 			first = false;
-			controlSys->setVoltageForInitializing({-2, -2, -2, -5});
+			controlSys->setVoltageForInitializing({-2, -2, -2, -7});
 		}
 		else {
 			count++;
