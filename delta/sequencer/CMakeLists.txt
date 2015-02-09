@@ -1,1 +1,1 @@
-add_delta_sources(MainSequence.cpp MoveBlockSequence.cpp) 
+add_delta_sources(MainSequence.cpp SortSequence.cpp MoveBlockSequence.cpp CalibrateSequence.cpp DetectSequence.cpp) 

@@ -21,7 +21,7 @@ ControlSystem::ControlSystem() :
 	
 	joystick("/dev/input/js0"),
 	mouse("/dev/input/event1"),
-	pathPlanner({1, 1, 1, 1}, {10, 10, 10, 10}, dt), // TODO
+	pathPlanner({1, 1, 1, 5}, {10, 10, 10, 50}, dt), // TODO
 	inputSwitch(1),
 	posController(kp),
 	speedController(kd),

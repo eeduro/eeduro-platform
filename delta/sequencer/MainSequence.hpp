@@ -5,6 +5,7 @@
 #include <eeros/safety/SafetySystem.hpp>
 #include "../control/ControlSystem.hpp"
 #include "MoveBlockSequence.hpp"
+#include "SortSequence.hpp"
 
 namespace eeduro {
 	namespace delta {
@@ -16,6 +17,7 @@ namespace eeduro {
 			
 		private:
 			MoveBlockSequence moveBlock;
+			SortSequence sort;
 			
 			eeduro::delta::ControlSystem* controlSys;
 			eeros::safety::SafetySystem* safetySys;

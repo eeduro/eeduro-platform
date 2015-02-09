@@ -28,6 +28,11 @@ void PathPlanner::gotoPoint(AxisVector p) {
 	TrajectoryGenerator<AxisVector, 3>* t = static_cast<TrajectoryGenerator<AxisVector, 3>*>(&trajectoryGen);
 	t->push(p);
 	// 	trajectoryGen.push(p);
+	lastPoint = p;
+}
+
+AxisVector PathPlanner::getLastPoint() {
+	return lastPoint;
 }
 
 bool PathPlanner::posReached() {
@@ -41,6 +46,7 @@ void PathPlanner::setInitPos(AxisVector initPos) {
 	r[1] = z;
 	r[2] = z;
 	trajectoryGen.reset(r);
+	lastPoint = initPos;
 }
 
 void PathPlanner::run() {

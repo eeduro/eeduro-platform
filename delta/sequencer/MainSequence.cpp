@@ -14,7 +14,12 @@ enum {
 	move_to
 };
 
-MainSequence::MainSequence(Sequencer* sequencer, ControlSystem* controlSys, SafetySystem* safetySys) : Sequence<void>("main", sequencer), controlSys(controlSys), safetySys(safetySys), moveBlock(sequencer, controlSys, safetySys) {
+MainSequence::MainSequence(Sequencer* sequencer, ControlSystem* controlSys, SafetySystem* safetySys) :
+	Sequence<void>("main", sequencer),
+	moveBlock(sequencer, controlSys, safetySys),
+	sort(sequencer, controlSys, safetySys),
+	controlSys(controlSys),
+	safetySys(safetySys) {
 	// nothing to do
 }
 
@@ -52,36 +57,15 @@ void MainSequence::run() {
 		if (index == 0) {
 			log.trace() << "switching to predifined path";
 			
-			std::queue<AxisVector> p;
-			double z = -0.025;
-			p.push(start_position);
-			p.push({  0.00,  0.00, z, 0});
-			p.push({  0.02,  0.00, z, 0});
-			p.push({  0.02,  0.02, z, 0});
-			p.push({ -0.02,  0.02, z, 0});
-			p.push({ -0.02, -0.02, z, 0});
-			p.push({  0.02, -0.02, z, 0});
-			p.push({  0.02,  0.02, z, 0});
-			p.push({ -0.02,  0.02, z, 0});
-			p.push({ -0.02, -0.02, z, 0});
-			p.push({  0.02, -0.02, z, 0});
-			p.push({  0.02,  0.02, z, 0});
-			p.push({ -0.02,  0.02, z, 0});
-			p.push({ -0.02, -0.02, z, 0});
-			p.push({  0.02, -0.02, z, 0});
-			p.push({  0.02,  0.02, z, 0});
-			p.push(start_position);
-			
 			controlSys->pathPlanner.setInitPos(controlSys->inputSwitch.getOut().getSignal().getValue());
  			controlSys->inputSwitch.switchToInput(0);
-			while(p.size() > 0) {
-				controlSys->pathPlanner.gotoPoint(p.front());
-				while(!controlSys->pathPlanner.posReached()) {
-					usleep(100000);
-					yield();
-				}
-				p.pop();
+			controlSys->pathPlanner.gotoPoint(start_position);
+			while(!controlSys->pathPlanner.posReached()) {
+				usleep(100000);
+				yield();
 			}
+			
+			sort();
 		}
 		if (index == 1) {
 			log.trace() << "switching to mouse input";

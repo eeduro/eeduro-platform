@@ -2,6 +2,7 @@
 #include "safety/DeltaSafetyProperties.hpp"
 #include "sequencer/MoveBlockSequence.hpp"
 #include "sequencer/MainSequence.hpp"
+#include "sequencer/CalibrateSequence.hpp"
 
 #include <eeros/hal/HAL.hpp>
 #include <eeros/safety/SafetySystem.hpp>
@@ -52,6 +53,7 @@ int main(int argc, char* argv[]) {
 	controlSys.mouse.j.on_button([&](int x, bool value) {
 		if (x == BTN_LEFT || x == BTN_RIGHT)
 			controlSys.board.power_out[0] = value;
+			controlSys.board.power_out[1] = value;
 	});
 	
 	// create safety system
@@ -60,20 +62,41 @@ int main(int argc, char* argv[]) {
 	
 	// create sequencer
 	Sequencer sequencer;
-	MainSequence mainSequence(&sequencer, &controlSys, &safetySys);
-	sequencer.start(&mainSequence);
 	
-	while(running && sequencer.getState() != state::terminated) {
-		usleep(1000000);
+	if (argc >= 2) {
+		if (std::string("calibrate") == argv[1]) {
+			CalibrateSequence calibrate(&sequencer, &controlSys, &safetySys);
+			sequencer.start(&calibrate);
+			sequencer.join();
+		}
+		else {
+			log.fatal() << "unknown arguments";
+		}
+	}
+	else {
+		MainSequence mainSequence(&sequencer, &controlSys, &safetySys);
+		sequencer.start(&mainSequence);
+		
+		while(running && sequencer.getState() != state::terminated) {
+			usleep(1000000);
+			/*log.trace() << controlSys.directKin.getOut().getSignal().getValue()[0] << "   "
+						<< controlSys.directKin.getOut().getSignal().getValue()[1] << "   "
+						<< controlSys.directKin.getOut().getSignal().getValue()[2] << "   "
+						<< controlSys.directKin.getOut().getSignal().getValue()[3];*/
+		}
 	}
 	
 	log.info() << "Shuting down...";
+	
+	sequencer.shutdown();
 	
 	safetySys.triggerEvent(doParking);
 	safetySys.shutdown();
 	
 	controlSys.disableAxis();
 	controlSys.stop();
+	
+	sleep(1);
 	
 	return 0;
 }

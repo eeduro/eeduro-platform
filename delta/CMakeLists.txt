@@ -28,7 +28,7 @@ add_subdirectory(safety)
 add_subdirectory(sequencer)
 
 # Main executable for delta robot
-add_delta_sources(delta.cpp)
+add_delta_sources(delta.cpp Calibration.cpp)
 add_executable(eeduro-delta ${DELTA_SRCS})
 target_link_libraries(eeduro-delta eeduro eeros)
 install(TARGETS eeduro-delta RUNTIME DESTINATION bin)

@@ -25,6 +25,7 @@ namespace eeduro {
 			virtual void gotoPoint(AxisVector p);
 			virtual bool posReached();
 			virtual void setInitPos(AxisVector initPos);
+			virtual AxisVector getLastPoint();
 			
 			virtual void run();
 			
@@ -36,6 +37,7 @@ namespace eeduro {
 			double tOld;
 			
 			ConstantAccTrajectoryGenerator<AxisVector> trajectoryGen;
+			AxisVector lastPoint;
 		};
 	}
 }

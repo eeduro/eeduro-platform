@@ -1,84 +1,104 @@
 #include "MoveBlockSequence.hpp"
+#include <unistd.h>
+
 using namespace eeduro::delta;
 using namespace eeros::sequencer;
 using namespace eeros::safety;
 
-enum {
-	idle,
-	move_from_to,
-	move_to
-};
 
-MoveBlockSequence::MoveBlockSequence(Sequencer* sequencer, ControlSystem* controlSys, SafetySystem* safetySys) : Sequence<void, int, int>("main", sequencer), controlSys(controlSys), safetySys(safetySys), state(idle) {
-	// nothing to do
-}
-
-bool MoveBlockSequence::checkPreCondition() {
-	return (state != idle);
+MoveBlockSequence::MoveBlockSequence(Sequencer* sequencer, ControlSystem* controlSys, SafetySystem* safetySys) :
+	Sequence<void, int, int>("moveBlock", sequencer),
+	controlSys(controlSys),
+	safetySys(safetySys),
+	position(0)
+{
+	calibration.loadDefaults();
+	if (!calibration.load()) {
+		log.warn() << "could not load calibration";
+	}
 }
 
 void MoveBlockSequence::run(int from, int to) {
-	if (state == idle) {
-		this->from = from;
-		this->to = to;
-		state = move_from_to;
-	}
-	else {
-		log.warn() << "[" << name << "]: another operation is currently executing";
-	}
+	up();
+	move(from);
+	down();
+	grab();
+	run(to);
 }
 
 void MoveBlockSequence::run(int to) {
-	if (state == idle) {
-		this->from = (-1);
-		this->to = to;
-		state = move_to;
-	}
-	else {
-		log.warn() << "[" << name << "]: another operation is currently executing";
-	}
-}
-
-void MoveBlockSequence::init() {
-	
-	std::bind(&MoveBlockSequence::init, *this);
-	
-// 	if (state == move_from_to) {
-// 		addStep([&] () { up(); });
-// 		addStep([&] () { move(from); });
-// 		addStep([&] () { down(); });
-// 		addStep([&] () { grab(); });
-// 	}
-// 	
-// 	addStep([&] () { up(); });
-// 	addStep([&] () { move(to); });
-// 	addStep([&] () { down(); });
-// 	addStep([&] () { release(); });
-// 	addStep([&] () { up(); });
-}
-
-void MoveBlockSequence::exit() {
-	state = idle;
+	up();
+	move(to);
+	down();
+	release();
+	up();
 }
 
 void MoveBlockSequence::up() {
 	log.trace() << "move to transportation height";
+	
+	eeros::math::Vector<4> torqueLimit{ q012gearTorqueLimit, q012gearTorqueLimit, q012gearTorqueLimit, q3gearTorqueLimit };
+	controlSys->torqueLimitation.setLimit(-torqueLimit, torqueLimit);
+	auto p = controlSys->pathPlanner.getLastPoint();
+	
+	p[2] = calibration.transportation_height;
+	controlSys->pathPlanner.gotoPoint(p);
+	waitUntilPointReached();
 }
 
 void MoveBlockSequence::down() {
 	log.trace() << "move down";
+	
+	double down = calibration.position[position].zblock[1] + 0.001;
+	double touch = calibration.position[position].zblock[3];
+	
+	eeros::math::Vector<4> torqueLimit{ q012gearTorqueLimit, q012gearTorqueLimit, q012gearTorqueLimit, q3gearTorqueLimit };
+	eeros::math::Vector<4> torqueLimitDown = torqueLimit * 0.1;
+	
+	
+	auto p = controlSys->pathPlanner.getLastPoint();
+	
+	p[2] = down;
+	controlSys->pathPlanner.gotoPoint(p);
+	waitUntilPointReached();
+	
+	controlSys->torqueLimitation.setLimit(-torqueLimitDown, torqueLimitDown);
+	
+	p[2] = touch;
+	controlSys->pathPlanner.gotoPoint(p);
+	waitUntilPointReached();
 }
 
 void MoveBlockSequence::grab() {
 	log.trace() << "grab block";
+	controlSys->board.power_out[0] = true;
 }
 
 void MoveBlockSequence::release() {
 	log.trace() << "release block";
+	controlSys->board.power_out[0] = false;
 }
 
 void MoveBlockSequence::move(int position) {
 	log.trace() << "move to position " << position;
+	auto p = controlSys->pathPlanner.getLastPoint();
+	p[0] = calibration.position[position].x;
+	p[1] = calibration.position[position].y;
+	if (p[3] > 1) {
+		p[3] = calibration.position[position].r;
+	}
+	else {
+		p[3] = calibration.position[position].r + pi / 2.0;
+	}
+	controlSys->pathPlanner.gotoPoint(p);
+	waitUntilPointReached();
+}
+
+void MoveBlockSequence::waitUntilPointReached() {
+	while (!controlSys->pathPlanner.posReached()) {
+		usleep(100000);
+		yield();
+	}
 }
 
 
