@@ -96,7 +96,7 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 	level(off               ).setInputActions({ ignore(emergencyStop),                    ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
 	level(swInitializing    ).setInputActions({ ignore(emergencyStop),                    ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
 	level(swInitialized     ).setInputActions({ ignore(emergencyStop),                    ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
-	level(emergency         ).setInputActions({ ignore(emergencyStop),                    check(approval, false, resetingEmergency), ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
+	level(emergency         ).setInputActions({ ignore(emergencyStop),                    check(approval, false, doEmergencyReset),  ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
 	level(resetingEmergency ).setInputActions({ check(emergencyStop, false, doEmergency), ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
 //	level(waitingForApproval).setInputActions({ ignore(emergencyStop),                    check(approval, false, doControlStart),    ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
 	level(controlStopping   ).setInputActions({ ignore(emergencyStop),                    ignore(approval),                          ignore(q0),                                       ignore(q1),                                       ignore(q2),                                       ignore(q3)                                       });
@@ -149,9 +149,25 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 		privateContext->triggerEvent(doControlStart);
 	});
 	
-	level(controlStopping).setLevelAction([&](SafetyContext* privateContext) {
-		controlSys->stop();
-		privateContext->triggerEvent(controlStoppingDone);
+	level(swInitialized).setLevelAction([&](SafetyContext* privateContext) {
+		privateContext->triggerEvent(doControlStart);
+	});
+	
+	level(emergency).setLevelAction([&](SafetyContext* privateContext) {
+		static int count = 0;
+
+		if (emergencyStop->get())
+			count++;
+		else
+			count = 0;
+
+		if (count > static_cast<unsigned int>(5.0 / dt)) {
+			exit(1);
+		}
+	});
+	
+	level(resetingEmergency).setLevelAction([&](SafetyContext* privateContext) {
+		exit(2);
 	});
 	
 	level(controlStarting).setLevelAction([&](SafetyContext* privateContext) {
@@ -171,19 +187,21 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 	});
 	
 	level(powerOn).setLevelAction([&](SafetyContext* privateContext) {
-		if(!controlSys->axisHomed()) privateContext->triggerEvent(doHoming);
-		else privateContext->triggerEvent(doPoweringDown);
+		controlSys->homed = false;
+		controlSys->voltageSwitch.switchToInput(1);
+		privateContext->triggerEvent(doHoming);
 	});
 	
 	level(homeing).setLevelAction([&](SafetyContext* privateContext) {
 		static unsigned int count = 0;
-		if(count == 0) {
+		if(count == 1) {
 			controlSys->setVoltageForInitializing({q012InitVoltage, q012InitVoltage, q012InitVoltage, q3InitVoltage});
 		}
 		else if(count > static_cast<unsigned int>(2.0 / dt)) {
 			if(controlSys->switchToPosControl()) {
 				privateContext->triggerEvent(homeingDone);
 			}
+			count = 0;
 		}
 		count++;
 	});
@@ -199,7 +217,10 @@ DeltaSafetyProperties::DeltaSafetyProperties(ControlSystem* cs) : controlSys(cs)
 			count++;
 			if(count > static_cast<unsigned int>(0.3 / dt)) {
 				controlSys->setVoltageForInitializing({0, 0, 0, 0});
+				controlSys->mouse.reset(0, 0, 0, 0);
 				controlSys->voltageSwitch.switchToInput(0);
+				count = 0;
+				first = false;
 				privateContext->triggerEvent(doSystemReady);
 				
 			}
