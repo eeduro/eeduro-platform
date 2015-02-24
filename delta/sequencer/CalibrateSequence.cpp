@@ -75,6 +75,56 @@ void CalibrateSequence::run() {
 		calibration.position[i].level23 = (calibration.position[i].zblock[2] + calibration.position[i].zblock[3]) / 2.0;
 		calibration.position[i].level30 = (calibration.position[i].zblock[3] + calibration.position[i].zblock[0]) / 2.0;
 	}
+
+	bool good = true;
+	for (int i = 0; i < 4; i++) {
+		double z0 = calibration.position[i].zblock[0];
+		double z1 = calibration.position[i].zblock[1];
+		double z2 = calibration.position[i].zblock[2];
+		double z3 = calibration.position[i].zblock[3];
+		
+		if (z0 >= z3) {
+			log.error() << "[position " << i << "] invalid calibration zblock0 >= zblock3";
+			good = false;
+		}
+		if (z3 >= z2) {
+			log.error() << "[position " << i << "] invalid calibration zblock3 >= zblock2";
+			good = false;
+		}
+		if (z2 >= z1) {
+			log.error() << "[position " << i << "] invalid calibration zblock2 >= zblock1";
+			good = false;
+		}
+		
+		if (z1 <= calibration.position[i].level12) {
+			log.error() << "[position " << i << "] invalid calibration zblock1 <= level12";
+			good = false;
+		}
+		if (z2 >= calibration.position[i].level12) {
+			log.error() << "[position " << i << "] invalid calibration zblock2 >= level12";
+			good = false;
+		}
+		
+		if (z2 <= calibration.position[i].level23) {
+			log.error() << "[position " << i << "] invalid calibration zblock2 <= level23";
+			good = false;
+		}
+		if (z3 >= calibration.position[i].level23) {
+			log.error() << "[position " << i << "] invalid calibration zblock3 >= level23";
+			good = false;
+		}
+		
+		if (z3 <= calibration.position[i].level30) {
+			log.error() << "[position " << i << "] invalid calibration zblock3 <= level30";
+			good = false;
+		}
+		if (z0 >= calibration.position[i].level30) {
+			log.error() << "[position " << i << "] invalid calibration zblock0 >= level30";
+			good = false;
+		}
+	}
+	
+	if (!good) return;
 	if (calibration.save()) {
 		log.info() << "calibration saved";
 	}
