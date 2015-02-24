@@ -50,10 +50,18 @@ int main(int argc, char* argv[]) {
 	// initialize hardware
 	controlSys.initBoard();
 	
-	controlSys.mouse.j.on_button([&](int x, bool value) {
-		if (x == BTN_LEFT || x == BTN_RIGHT)
+	controlSys.mouse.j.on_button([&controlSys](int x, bool value) {
+		if (x == BTN_LEFT || x == BTN_RIGHT) {
 			controlSys.board.power_out[0] = value;
 			controlSys.board.power_out[1] = value;
+		}
+	});
+	
+	controlSys.joystick.on_button([&controlSys](int x, bool value) {
+		if (x == 4 || x == 5) { // LB and RB
+			controlSys.board.power_out[0] = value;
+			controlSys.board.power_out[1] = value;
+		}
 	});
 	
 	// create safety system
