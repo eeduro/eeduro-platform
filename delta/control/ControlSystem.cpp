@@ -30,7 +30,8 @@ ControlSystem::ControlSystem() :
 	motorModel(kM, RA),
 	voltageSwitch(1),
 	directKin(kinematic),
-	timedomain("Main time domain", dt, true) {
+	timedomain("Main time domain", dt, true) 
+{
 
 	torqueLimitation.enable();
 	torqueGear.setGain(1.0 / i);
